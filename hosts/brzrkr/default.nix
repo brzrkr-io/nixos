@@ -37,6 +37,11 @@
     # systemd-based stage 1: parallel initrd, cleaner LUKS passphrase prompt
     initrd.systemd.enable = true;
 
+    # TPM auto-unlock: tries the TPM2 keyslot first, falls back to the
+    # passphrase prompt if none is enrolled or the TPM balks. Enroll with:
+    #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+2+7 /dev/nvme0n1p2
+    initrd.luks.devices."cryptroot".crypttabExtraOpts = [ "tpm2-device=auto" ];
+
     supportedFilesystems = [ "ext4" "btrfs" "ntfs" ];
     tmp.cleanOnBoot = true;
   };
