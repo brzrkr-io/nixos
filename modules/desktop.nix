@@ -170,6 +170,7 @@
     python3
     nodejs_22
     gcc
+    tree-sitter # nvim-treesitter grammar builds
     gnumake
     cmake
     pkg-config

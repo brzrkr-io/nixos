@@ -34,5 +34,8 @@
   environment.sessionVariables = {
     STEAM_EXTRA_COMPAT_TOOLS_PATHS = "\${HOME}/.steam/root/compatibilitytools.d";
     MANGOHUD = "1";
+    # Stop the NVIDIA driver from garbage-collecting compiled Vulkan shader
+    # pipelines between sessions (shader-stutter fix, esp. for CS2)
+    __GL_SHADER_DISK_CACHE_SKIP_CLEANUP = "1";
   };
 }
