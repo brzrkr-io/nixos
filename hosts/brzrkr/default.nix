@@ -46,7 +46,8 @@
     firewall = {
       enable = true;
       allowedTCPPorts = [ 22 ]; # SSH
-      allowedUDPPorts = [ 51820 53 ]; # WireGuard, DNS
+      allowedUDPPorts = [ 51820 53 41641 ]; # WireGuard, DNS, tailscale direct conns
+      trustedInterfaces = [ "tailscale0" ]; # trust traffic arriving over the tailnet
     };
   };
 
@@ -115,6 +116,9 @@
         PermitRootLogin = "no";
       };
     };
+
+    # Tailscale VPN — daemon + CLI; authenticate once with `sudo tailscale up`
+    tailscale.enable = true;
 
     printing.enable = true;
 
