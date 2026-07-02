@@ -66,11 +66,15 @@ in
   # CURSOR, GTK & QT
   # ============================================================================
   home.pointerCursor = {
-    name = "Bibata-Modern-Classic";
-    package = pkgs.bibata-cursors;
+    name = "phinger-cursors-dark";
+    package = pkgs.phinger-cursors;
     size = 24;
     gtk.enable = true;
     x11.enable = true;
+    hyprcursor = {
+      enable = true;
+      size = 24;
+    };
   };
 
   gtk = {

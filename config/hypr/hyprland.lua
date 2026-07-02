@@ -37,9 +37,9 @@ hl.env("GBM_BACKEND", "nvidia-drm")
 hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
 hl.env("NIXOS_OZONE_WL", "1")
 hl.env("XCURSOR_SIZE", "24")
-hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
+hl.env("XCURSOR_THEME", "phinger-cursors-dark")
 hl.env("HYPRCURSOR_SIZE", "24")
-hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Ice")
+hl.env("HYPRCURSOR_THEME", "phinger-cursors-dark")
 
 
 -------------------

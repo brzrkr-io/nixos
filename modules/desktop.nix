@@ -131,7 +131,7 @@
     networkmanagerapplet
 
     # Theming
-    bibata-cursors
+    phinger-cursors
     adwaita-icon-theme
 
     # Apps
