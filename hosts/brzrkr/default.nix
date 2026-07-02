@@ -37,6 +37,14 @@
   };
 
   # ===========================================================================
+  # MEMORY (no disk swap partition exists — compressed RAM swap instead)
+  # ===========================================================================
+  zramSwap = {
+    enable = true;
+    memoryPercent = 50;
+  };
+
+  # ===========================================================================
   # NETWORKING
   # ===========================================================================
   networking = {
@@ -121,6 +129,9 @@
     tailscale.enable = true;
 
     printing.enable = true;
+
+    # Firmware updates from LVFS (run `fwupdmgr update` occasionally)
+    fwupd.enable = true;
 
     # Mode-switch the RTL8188GU dongle from storage to wifi
     udev.extraRules = ''
