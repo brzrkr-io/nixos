@@ -135,10 +135,9 @@ apply() { # [nowall]
         >/dev/null 2>&1 || true
     fi
   done
-  if pgrep -x walker >/dev/null 2>&1; then
-    pkill -x walker >/dev/null 2>&1 || true
-    hyprctl dispatch exec 'walker --gapplication-service' >/dev/null 2>&1 || true
-  fi
+  # restart resident walker so it re-reads the regenerated CSS — routed through
+  # hyprctl so it works even where this script can't see session processes
+  hyprctl dispatch exec 'sh -c "pkill -x walker; sleep 0.3; exec walker --gapplication-service"' >/dev/null 2>&1 || true
 
   if [ "${1:-}" != nowall ]; then
     set_wallpaper ""

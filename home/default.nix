@@ -46,9 +46,11 @@ in
     # USER PACKAGES
     # ==========================================================================
     packages = with pkgs; [
-      # Editor: plain package, NOT programs.neovim — the HM module generates
-      # .config/nvim/init.lua, colliding with our out-of-store nvim symlink
+      # Editors: plain packages, NOT programs.neovim/helix HM modules — those
+      # generate configs that collide with our out-of-store symlinks.
+      # helix is on trial as a possible nvim replacement (zero-plugin IDE).
       neovim
+      helix
 
       # Git tools
       lazygit
@@ -95,6 +97,7 @@ in
       ".config/dunst".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/dunst";
       ".config/ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/ghostty";
       ".config/nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
+      ".config/helix".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/helix";
       ".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/starship/starship.toml";
       ".tmux.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux/tmux.conf";
     };
