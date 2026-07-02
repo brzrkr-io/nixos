@@ -15,6 +15,10 @@ in
     # USER PACKAGES
     # ==========================================================================
     packages = with pkgs; [
+      # Editor: plain package, NOT programs.neovim — the HM module generates
+      # .config/nvim/init.lua, colliding with our out-of-store nvim symlink
+      neovim
+
       # Git tools
       lazygit
       delta
@@ -26,7 +30,7 @@ in
       stylua
       shfmt
       nixpkgs-fmt
-      nodePackages.prettier
+      prettier
 
       # Gaming tools
       prismlauncher
@@ -203,6 +207,8 @@ in
       ll = "eza -la --icons --group-directories-first --git";
       lt = "eza --tree --icons --group-directories-first";
       cat = "bat --style=auto";
+      vi = "nvim";
+      vim = "nvim";
       grep = "rg";
       find = "fd";
       top = "btop";
@@ -298,12 +304,6 @@ in
   # ----------------------------------------------------------------------------
   # EDITORS & MULTIPLEXER
   # ----------------------------------------------------------------------------
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-  };
 
   programs.tmux.enable = true;
 }

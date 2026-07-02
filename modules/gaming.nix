@@ -14,7 +14,8 @@
   environment.systemPackages = with pkgs; [
     runelite
     lutris
-    wineWowPackages.stable
+    # wine dropped: Lutris manages its own runners, Steam uses Proton
+    # (re-add wineWowPackages.stable once the nixpkgs pin is cached on Hydra)
     protontricks
     gamescope
     mangohud
