@@ -2,7 +2,7 @@
 # Theme colors come from the fragment included after this file (see config)
 
 # Font
-font-family = "JetBrainsMono Nerd Font"
+font-family = "Maple Mono NF"
 font-size = 11
 # font-style = Bold      # was forcing everything bold — part of the "too large" feel
 font-thicken = false

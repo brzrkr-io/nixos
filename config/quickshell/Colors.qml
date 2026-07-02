@@ -1,16 +1,16 @@
-// tokyonight dark (generated into config/quickshell/Colors.qml by `theme apply`)
+// tokyonight light (generated into config/quickshell/Colors.qml by `theme apply`)
 import QtQuick
 
 QtObject {
-    readonly property color bar: "#16161e"
-    readonly property color pill: "#1f2335"
-    readonly property color pillHover: "#292e42"
-    readonly property color fg: "#c0caf5"
-    readonly property color dim: "#565f89"
-    readonly property color accent: "#7aa2f7"
-    readonly property color purple: "#bb9af7"
-    readonly property color cyan: "#7dcfff"
-    readonly property color green: "#9ece6a"
-    readonly property color red: "#f7768e"
-    readonly property color hairline: "#0d0d12"
+    readonly property color bar: "#d0d5e3"
+    readonly property color pill: "#c4c8da"
+    readonly property color pillHover: "#b6bfe2"
+    readonly property color fg: "#3760bf"
+    readonly property color dim: "#848cb5"
+    readonly property color accent: "#2e7de9"
+    readonly property color purple: "#9854f1"
+    readonly property color cyan: "#007197"
+    readonly property color green: "#587539"
+    readonly property color red: "#f52a65"
+    readonly property color hairline: "#b4b9ce"
 }

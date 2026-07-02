@@ -70,13 +70,14 @@
   fonts = {
     enableDefaultPackages = true;
     packages = with pkgs; [
-      nerd-fonts.jetbrains-mono
+      maple-mono.NF
+      nerd-fonts.jetbrains-mono # fallback
       font-awesome
     ];
     fontconfig.defaultFonts = {
-      monospace = [ "JetBrainsMono Nerd Font" ];
-      sansSerif = [ "JetBrainsMono Nerd Font" ];
-      serif = [ "JetBrainsMono Nerd Font" ];
+      monospace = [ "Maple Mono NF" "JetBrainsMono Nerd Font" ];
+      sansSerif = [ "Maple Mono NF" "JetBrainsMono Nerd Font" ];
+      serif = [ "Maple Mono NF" "JetBrainsMono Nerd Font" ];
     };
   };
 

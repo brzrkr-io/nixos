@@ -1,15 +1,15 @@
-@define-color window_bg_color #16161e;
-@define-color accent_bg_color #7aa2f7;
-@define-color theme_fg_color #c0caf5;
-@define-color error_bg_color #f7768e;
-@define-color error_fg_color #1a1b26;
+@define-color window_bg_color #e1e2e7;
+@define-color accent_bg_color #2e7de9;
+@define-color theme_fg_color #3760bf;
+@define-color error_bg_color #f52a65;
+@define-color error_fg_color #e1e2e7;
 
 * {
   all: unset;
 }
 
 * {
-  font-family: "JetBrainsMono Nerd Font";
+  font-family: "Maple Mono NF";
 }
 
 popover {

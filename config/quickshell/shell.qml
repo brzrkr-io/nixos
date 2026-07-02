@@ -29,7 +29,7 @@ ShellRoot {
     property color colCyan: palette.cyan
     property color colGreen: palette.green
     property color colRed: palette.red
-    property string fontFamily: "JetBrainsMono Nerd Font"
+    property string fontFamily: "Maple Mono NF"
     property int fontSize: 13
 
     // ── State ────────────────────────────────────────────────────────────

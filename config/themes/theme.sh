@@ -110,7 +110,7 @@ set_wallpaper() { # [file]
 }
 
 apply() { # [nowall]
-  local t p v alt gtk s nd
+  local t p v alt gtk s nd rgbas
   t="$(read_state theme tokyonight)"
   p="$(resolve_polarity)"
   v="$themes_dir/$t/$p"
@@ -146,7 +146,16 @@ apply() { # [nowall]
   if [ -n "$gtk" ]; then
     gsettings set org.gnome.desktop.interface color-scheme "$gtk" >/dev/null 2>&1 || true
   fi
-  hyprctl reload >/dev/null 2>&1 || true
+  # hyprland: set colors via keywords, NOT `hyprctl reload` — a full reload
+  # re-fires every plugin's config hooks and hypr-dynamic-cursors segfaults on
+  # that (session crash 2026-07-02, see ~/.cache/hyprland/hyprlandCrashReport*).
+  # Relies on the fragment's rgba order: active x2, inactive, shadow.
+  mapfile -t rgbas < <(grep -Po 'rgba\([0-9a-fA-F]{8}\)' "$v/hypr.lua" || true)
+  if [ "${#rgbas[@]}" -eq 4 ]; then
+    hyprctl keyword general:col.active_border "${rgbas[0]} ${rgbas[1]} 45deg" >/dev/null 2>&1 || true
+    hyprctl keyword general:col.inactive_border "${rgbas[2]}" >/dev/null 2>&1 || true
+    hyprctl keyword decoration:shadow:color "${rgbas[3]}" >/dev/null 2>&1 || true
+  fi
   dunstctl reload >/dev/null 2>&1 || true
   gdbus call --session --dest com.mitchellh.ghostty \
     --object-path /com/mitchellh/ghostty \
