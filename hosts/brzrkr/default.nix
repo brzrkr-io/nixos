@@ -125,6 +125,8 @@
   virtualisation.docker = {
     enable = true;
     autoPrune.enable = true;
+    # Don't start dockerd at boot; the socket starts it on first `docker` use
+    enableOnBoot = false;
   };
 
   # ===========================================================================

@@ -15,9 +15,18 @@
   # ==========================================================================
   services.greetd = {
     enable = true;
-    settings.default_session.command =
-      "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session "
-      + "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions";
+    settings = {
+      # First boot session: straight into Hyprland, no greeter. Sane here
+      # because LUKS+TPM already gates the machine; SUPER+Escape locks, and
+      # logging OUT still lands on tuigreet below.
+      initial_session = {
+        command = "Hyprland";
+        user = username;
+      };
+      default_session.command =
+        "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session "
+        + "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions";
+    };
   };
 
   # ==========================================================================
