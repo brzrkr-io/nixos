@@ -1,4 +1,6 @@
-// gruvbox light hard (generated into config/quickshell/Colors.qml by `theme apply`)
+// gruvbox light hard — official morhetz palette (generated into Colors.qml)
+// bar=bg1  pill=bg2  pillHover=bg3  dim=fg4  accent=orange(faded)
+// purple/cyan/green/red = faded variants
 import QtQuick
 
 QtObject {
@@ -12,5 +14,4 @@ QtObject {
     readonly property color cyan: "#427b58"
     readonly property color green: "#79740e"
     readonly property color red: "#9d0006"
-    readonly property color hairline: "#c9b99a"
 }

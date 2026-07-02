@@ -193,22 +193,10 @@ ShellRoot {
             implicitHeight: 36
             color: root.colBar
 
-            // hairline separator under the bar
-            Rectangle {
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: 1
-                color: palette.hairline
-
-                Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
-            }
-
             RowLayout {
                 anchors.fill: parent
                 anchors.leftMargin: 12
                 anchors.rightMargin: 12
-                anchors.bottomMargin: 1
                 spacing: 8
 
                 // Workspaces: one pill, active number highlighted

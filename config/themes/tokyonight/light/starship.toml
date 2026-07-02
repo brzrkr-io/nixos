@@ -4,7 +4,7 @@
 bg = "#e1e2e7"
 bg_dark = "#d0d5e3"
 bg_highlight = "#c4c8da"
-terminal_black = "#a1a6c5"
+terminal_black = "#b4b5b9"
 fg = "#3760bf"
 fg_dark = "#6172b0"
 comment = "#848cb5"
