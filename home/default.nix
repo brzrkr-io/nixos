@@ -73,6 +73,14 @@ in
     x11.enable = true;
   };
 
+  # The GTK portal reads GSettings/dconf, not settings.ini — without this,
+  # GTK apps show the Adwaita default cursor while the compositor shows the
+  # themed one (mismatched cursors across windows).
+  dconf.settings."org/gnome/desktop/interface" = {
+    cursor-theme = config.home.pointerCursor.name;
+    cursor-size = config.home.pointerCursor.size;
+  };
+
   gtk = {
     enable = true;
     font = {
