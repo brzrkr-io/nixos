@@ -1,0 +1,5 @@
+-- Barebones Neovim config (targets Neovim 0.11)
+require("options")
+require("keymaps")
+require("plugins")
+require("lsp")

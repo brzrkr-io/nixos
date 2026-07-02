@@ -1,0 +1,138 @@
+# =============================================================================
+# DUNST CONFIGURATION
+# Notification daemon - Tokyo Night theme
+# =============================================================================
+
+[global]
+    # ==========================================================================
+    # DISPLAY
+    # ==========================================================================
+    monitor = 0
+    follow = mouse
+
+    # ==========================================================================
+    # GEOMETRY
+    # ==========================================================================
+    width = 320
+    height = 150
+    origin = top-right
+    offset = 12x50
+    scale = 0
+    notification_limit = 5
+
+    # ==========================================================================
+    # PROGRESS BAR
+    # ==========================================================================
+    progress_bar = true
+    progress_bar_height = 8
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 150
+    progress_bar_max_width = 280
+    progress_bar_corner_radius = 4
+
+    # ==========================================================================
+    # APPEARANCE
+    # ==========================================================================
+    indicate_hidden = yes
+    transparency = 0
+    separator_height = 2
+    padding = 16
+    horizontal_padding = 16
+    text_icon_padding = 16
+    frame_width = 2
+    frame_color = "#414868"
+    gap_size = 8
+    separator_color = frame
+    sort = yes
+    corner_radius = 10
+
+    # ==========================================================================
+    # TEXT
+    # ==========================================================================
+    font = JetBrainsMono Nerd Font Bold 10
+    line_height = 0
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    word_wrap = yes
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+
+    # ==========================================================================
+    # ICONS
+    # ==========================================================================
+    enable_recursive_icon_lookup = true
+    icon_theme = "Adwaita"
+    icon_position = left
+    min_icon_size = 32
+    max_icon_size = 64
+
+    # ==========================================================================
+    # HISTORY
+    # ==========================================================================
+    sticky_history = yes
+    history_length = 20
+
+    # ==========================================================================
+    # MISC
+    # ==========================================================================
+    dmenu = /usr/bin/wofi -d
+    browser = /usr/bin/firefox --new-tab
+    always_run_script = true
+    title = Dunst
+    class = Dunst
+    ignore_dbusclose = false
+    force_xwayland = false
+
+    # ==========================================================================
+    # MOUSE
+    # ==========================================================================
+    mouse_left_click = close_current
+    mouse_middle_click = do_action, close_current
+    mouse_right_click = close_all
+
+# =============================================================================
+# URGENCY LEVELS - Tokyo Night Theme
+# =============================================================================
+
+[urgency_low]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    frame_color = "#7dcfff"
+    highlight = "#73daca"
+    timeout = 5
+
+[urgency_normal]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    frame_color = "#bb9af7"
+    highlight = "#7aa2f7"
+    timeout = 10
+
+[urgency_critical]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    frame_color = "#f7768e"
+    highlight = "#f7768e"
+    timeout = 0
+
+# =============================================================================
+# APP-SPECIFIC RULES
+# =============================================================================
+
+[discord]
+    appname = discord
+    frame_color = "#5865F2"
+
+[spotify]
+    appname = Spotify
+    frame_color = "#1DB954"
+
+[firefox]
+    appname = firefox
+    frame_color = "#FF7139"

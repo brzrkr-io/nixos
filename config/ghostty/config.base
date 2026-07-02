@@ -1,0 +1,52 @@
+# Ghostty Base Configuration
+# Theme colors are appended by the theme manager
+
+# Font
+font-family = "JetBrainsMono Nerd Font"
+font-size = 12
+font-style = Bold
+font-thicken = true
+adjust-cell-height = 10%
+
+# Window
+window-padding-x = 8
+window-padding-y = 8
+background-opacity = 0.95
+window-decoration = false
+window-save-state = always
+
+# Behavior
+copy-on-select = clipboard
+confirm-close-surface = false
+mouse-hide-while-typing = true
+focus-follows-mouse = false
+
+# Shell integration
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# Scrollback
+scrollback-limit = 500000
+
+# Performance
+bold-is-bright = false
+
+# Input
+clipboard-paste-protection = false
+cursor-click-to-move = true
+
+# Tokyo Night theme
+theme = tokyonight
+
+# Selection colors
+selection-background = #33467c
+selection-foreground = #c0caf5
+
+
+
+
+

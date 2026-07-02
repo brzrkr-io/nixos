@@ -1,0 +1,76 @@
+# Starship Configuration
+# Tokyo Night theme
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Use Tokyo Night palette
+palette = "theme"
+
+# Prompt format
+format = """
+$directory\
+$git_branch\
+$git_status\
+$character"""
+
+# Time on the right
+right_format = """$time"""
+
+[line_break]
+disabled = true
+
+[time]
+disabled = false
+style = "bold magenta"
+format = "[$time]($style)"
+time_format = "%H:%M"
+
+[directory]
+style = "bold cyan"
+format = "[$path]($style)"
+truncation_length = 0
+truncate_to_repo = true
+
+[git_branch]
+symbol = ""
+style = "bold magenta"
+format = " ([$branch]($style))"
+
+[git_status]
+style = "bold red"
+format = "[$all_status]($style)"
+conflicted = "!"
+ahead = "↑"
+behind = "↓"
+diverged = "↕"
+up_to_date = ""
+untracked = "+"
+stashed = ""
+modified = "*"
+staged = ""
+renamed = ""
+deleted = ""
+
+[character]
+success_symbol = " [➜](bold blue)"
+error_symbol = " [➜](bold red)"
+vimcmd_symbol = " [❮](bold blue)"
+
+# Tokyo Night palette
+[palettes.theme]
+bg = "#1a1b26"
+bg_dark = "#16161e"
+bg_highlight = "#292e42"
+terminal_black = "#414868"
+fg = "#c0caf5"
+fg_dark = "#a9b1d6"
+comment = "#565f89"
+blue = "#7aa2f7"
+cyan = "#7dcfff"
+blue1 = "#2ac3de"
+magenta = "#bb9af7"
+orange = "#ff9e64"
+yellow = "#e0af68"
+green = "#9ece6a"
+teal = "#73daca"
+red = "#f7768e"
