@@ -23,8 +23,11 @@
     # "Hyprland (UWSM)" entry (ships with the hyprland package, needs uwsm we
     # don't install) and tuigreet's session memory kept re-selecting it.
     # No autologin: Parker wants the password prompt.
+    # start-hyprland (not bare Hyprland): the 0.55+ launcher that prepares the
+    # session env — bare launch triggers the "started without start-hyprland"
+    # warning notification on every login
     settings.default_session.command =
-      "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
+      "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd start-hyprland";
   };
 
   # ==========================================================================
