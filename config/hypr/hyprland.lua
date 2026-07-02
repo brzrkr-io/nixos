@@ -35,9 +35,7 @@ local menu        = "wofi --show drun"
 -- NVIDIA/Ozone vars live in the nix modules (single source of truth);
 -- only cursor theming is compositor-specific enough to belong here
 hl.env("XCURSOR_SIZE", "24")
-hl.env("XCURSOR_THEME", "Future-cursors")
-hl.env("HYPRCURSOR_SIZE", "24")
-hl.env("HYPRCURSOR_THEME", "Future-Cyan")
+hl.env("XCURSOR_THEME", "macOS")
 
 
 -------------------

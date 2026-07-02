@@ -65,11 +65,9 @@ in
   # ============================================================================
   # CURSOR, GTK & QT
   # ============================================================================
-  # Future cursors: sharp dark/cyan set; Hyprland uses the Future-Cyan
-  # hyprcursor variant (hyprland.lua sets HYPRCURSOR_THEME)
   home.pointerCursor = {
-    name = "Future-cursors";
-    package = pkgs.custom.future-cursors;
+    name = "macOS";
+    package = pkgs.apple-cursor;
     size = 24;
     gtk.enable = true;
     x11.enable = true;
