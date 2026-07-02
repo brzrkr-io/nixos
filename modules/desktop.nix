@@ -189,7 +189,6 @@
     # Code quality & LSPs
     shellcheck
     nil
-    rust-analyzer
     gopls
     pyright
     terraform-ls

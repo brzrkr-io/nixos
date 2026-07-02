@@ -907,8 +907,13 @@ do
   -- NOTE: You can also specify a branch or a specific commit
   vim.pack.add { { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' } }
 
-  -- Ensure basic parsers are installed
-  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+  -- Ensure basic parsers are installed (+ this machine's languages:
+  -- go/rust/nix/python/ts/terraform — needs the tree-sitter CLI, provided
+  -- by the system config)
+  local parsers = {
+    'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
+    'go', 'gomod', 'gosum', 'rust', 'toml', 'nix', 'python', 'typescript', 'javascript', 'json', 'yaml', 'terraform', 'hcl',
+  }
   require('nvim-treesitter').install(parsers)
 
   ---@param buf integer
