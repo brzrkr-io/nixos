@@ -1,0 +1,82 @@
+NVIM CHEATSHEET — brzrkr kickstart config          (space = leader key)
+═══════════════════════════════════════════════════════════════════════
+
+THE ONE TRICK THAT TEACHES YOU EVERYTHING
+  Press SPACE in normal mode and WAIT one second.
+  A menu (which-key) pops up showing every command you can finish.
+  Lost? Press space and read. This is your built-in cheatsheet.
+
+  Also: run :Tutor once. 25 minutes, best vim investment that exists.
+
+───────────────────────────────────────────────────────────────────────
+TIER 0 — SURVIVAL (learn today)
+  i             start typing (Insert mode)      Esc   back to Normal mode
+  :w            save          :q   quit         :wq   save and quit
+  u             undo          Ctrl-r            redo
+  YOU LIVE IN NORMAL MODE. Insert is only for typing text.
+  If nvim acts weird: mash Esc, you're fine.
+
+───────────────────────────────────────────────────────────────────────
+TIER 1 — MOVEMENT (this week; NEVER touch arrow keys again)
+  h j k l       ← ↓ ↑ →  (one step)
+  w  /  b       jump forward / back one word          ← use these CONSTANTLY
+  0  /  $       start / end of line
+  gg /  G       top / bottom of file
+  {  /  }       jump by paragraph/block
+  Ctrl-d / u    half-page down / up (stays centered)
+  /text ⏎       search; then  n  next hit,  N  previous
+  *             search word under cursor
+  f x           jump to next 'x' on this line;  ;  repeats the jump
+
+───────────────────────────────────────────────────────────────────────
+TIER 2 — THE GRAMMAR (this is what makes vim vim)
+  Commands are sentences:   VERB + NOUN
+  verbs:   d delete    c change (delete + insert)    y yank (copy)
+  nouns:   w word    iw inner word    i" inside quotes    i( inside parens
+           ip inner paragraph    $ to end of line
+
+  ciw      change the word I'm on          ← the single most useful command
+  di"      delete everything inside ""
+  ya(      copy parens and contents
+  dd yy cc delete / copy / change whole line
+  p / P    paste after / before
+  .        REPEAT last change (huge — do it once, dot the rest)
+  v / V    select chars / lines, then d/c/y works on selection
+
+───────────────────────────────────────────────────────────────────────
+TIER 3 — YOUR CONFIG'S POWERS (kickstart + LSP)
+  space space   switch between open buffers        ← your Cmd+Tab inside nvim
+  space sf      fuzzy-find any FILE by name        ← your Cmd+Space inside nvim
+  space sg      grep for text across the project
+  space s.      recent files
+  space sh      search help    space sk  search all keymaps
+  space q       list of errors/warnings (diagnostics)
+  space f       format the file
+
+  LSP (cursor on any symbol):
+  gd            go to definition                   Ctrl-o   JUMP BACK (!)
+  grr           list all references
+  grn           rename symbol everywhere
+  gra           code action (auto-fix, imports…)
+  K             docs for thing under cursor
+  ]d  /  [d     next / previous error
+
+  Windows/splits:  Ctrl-h/j/k/l move between splits   :vsplit new split
+
+  Extras already installed:
+  gc + motion   comment code (gcc = comment line)
+  sa iw "       surround word with quotes (mini.surround: sa/sd/sr)
+  Esc           clears search highlighting
+
+───────────────────────────────────────────────────────────────────────
+THE 7-DAY PLAN
+  Day 1     :Tutor. All of it. Then survival tier only.
+  Day 2-3   Movement tier. Arrows are forbidden. It hurts, then it doesn't.
+  Day 4-5   Grammar: force yourself to ciw / di" / dd instead of backspacing.
+  Day 6     space-sf and space-sg for ALL file hopping. gd + Ctrl-o for code.
+  Day 7     Pick 2 things from :help or space-sk that annoy you and fix them.
+
+  Golden rule: when you catch yourself doing something the slow way
+  (holding delete, arrowing across a line), STOP and ask "what's the
+  vim sentence for this?" — that habit is the entire skill.
+═══════════════════════════════════════════════════════════════════════
