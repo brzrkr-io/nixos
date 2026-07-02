@@ -99,6 +99,7 @@ in
       ".config/ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/ghostty";
       ".config/nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
       ".config/helix".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/helix";
+      ".config/zed".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/zed";
 
       # Hyprland plugins at a stable path so hyprland.lua can load them without
       # hardcoding store hashes (NOT under .config/hypr — that's a repo symlink
