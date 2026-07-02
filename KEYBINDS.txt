@@ -1,4 +1,4 @@
-BRZRKR KEYBINDS — generated 2026-07-02 (regenerate: scripts/keybinds.sh shows live version, SUPER+SHIFT+/)
+BRZRKR KEYBINDS — generated 2026-07-02 (live version: SUPER+SHIFT+/)
 ════════════════════════════════════════════════════════════
 Print                 Screenshot region
 SHIFT+Print           Screenshot full screen
@@ -13,7 +13,6 @@ SUPER+7               Go to workspace 7
 SUPER+8               Go to workspace 8
 SUPER+9               Go to workspace 9
 SUPER+BackSpace       Power menu (lock/logout/reboot/shutdown)
-SUPER+C               Clipboard history
 SUPER+CTRL+N          Toggle light/dark mode
 SUPER+CTRL+T          Theme/wallpaper picker
 SUPER+CTRL+W          Reset wallpaper (current theme)
@@ -56,6 +55,7 @@ SUPER+SHIFT+Q         Exit Hyprland
 SUPER+SHIFT+slash     Show this keybind cheatsheet
 SUPER+SHIFT+S         Move window to scratchpad
 SUPER+SHIFT+Tab       Switch window backwards
+SUPER+SHIFT+V         Clipboard history
 SUPER+SHIFT+W         Restart wallpaper service
 SUPER+Space           App launcher (Spotlight-style)
 SUPER+S               Toggle scratchpad
