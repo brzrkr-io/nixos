@@ -1,0 +1,6 @@
+# Walker launcher — minimal config (elephant provides the data)
+close_when_open = true
+
+[providers]
+default = ["desktopapplications", "calc"]
+empty = ["desktopapplications"]

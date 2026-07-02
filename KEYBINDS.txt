@@ -1,0 +1,70 @@
+BRZRKR KEYBINDS — generated 2026-07-02 (regenerate: scripts/keybinds.sh shows live version, SUPER+SHIFT+/)
+════════════════════════════════════════════════════════════
+Print                 Screenshot region
+SHIFT+Print           Screenshot full screen
+SUPER+0               Go to workspace 10
+SUPER+1               Go to workspace 1
+SUPER+2               Go to workspace 2
+SUPER+3               Go to workspace 3
+SUPER+4               Go to workspace 4
+SUPER+5               Go to workspace 5
+SUPER+6               Go to workspace 6
+SUPER+7               Go to workspace 7
+SUPER+8               Go to workspace 8
+SUPER+9               Go to workspace 9
+SUPER+BackSpace       Power menu (lock/logout/reboot/shutdown)
+SUPER+C               Clipboard history
+SUPER+CTRL+W          Reset wallpaper
+SUPER+D               App launcher
+SUPER+down            Focus down
+SUPER+E               File manager
+SUPER+Escape          Lock screen
+SUPER+F               Fullscreen
+SUPER+G               Launch Steam
+SUPER+h               Focus left
+SUPER+j               Focus down
+SUPER+k               Focus up
+SUPER+left            Focus left
+SUPER+l               Focus right
+SUPER+M               Minimize to scratchpad (Cmd+M style)
+SUPER+mouse:272       Drag window
+SUPER+mouse:273       Resize window
+SUPER+mouse_down      Next workspace
+SUPER+mouse_up        Previous workspace
+SUPER+P               Pseudotile
+SUPER+Q               Close window
+SUPER+Return          Open terminal
+SUPER+right           Focus right
+SUPER+SHIFT+0         Move window to workspace 10
+SUPER+SHIFT+1         Move window to workspace 1
+SUPER+SHIFT+2         Move window to workspace 2
+SUPER+SHIFT+3         Move window to workspace 3
+SUPER+SHIFT+4         Move window to workspace 4
+SUPER+SHIFT+5         Move window to workspace 5
+SUPER+SHIFT+6         Move window to workspace 6
+SUPER+SHIFT+7         Move window to workspace 7
+SUPER+SHIFT+8         Move window to workspace 8
+SUPER+SHIFT+9         Move window to workspace 9
+SUPER+SHIFT+G         Launch RuneLite
+SUPER+SHIFT+h         Move window left
+SUPER+SHIFT+j         Move window down
+SUPER+SHIFT+k         Move window up
+SUPER+SHIFT+l         Move window right
+SUPER+SHIFT+Q         Exit Hyprland
+SUPER+SHIFT+slash     Show this keybind cheatsheet
+SUPER+SHIFT+S         Move window to scratchpad
+SUPER+SHIFT+Tab       Switch window backwards
+SUPER+SHIFT+W         Restart wallpaper service
+SUPER+Space           App launcher (Spotlight-style)
+SUPER+S               Toggle scratchpad
+SUPER+Tab             Switch window (Cmd+Tab style)
+SUPER+T               Toggle split direction
+SUPER+up              Focus up
+SUPER+V               Toggle floating
+SUPER+W               Close window (Cmd+W style)
+XF86AudioLowerVolume  Volume down
+XF86AudioMute         Mute
+XF86AudioNext         Next track
+XF86AudioPlay         Play/pause
+XF86AudioPrev         Previous track
+XF86AudioRaiseVolume  Volume up

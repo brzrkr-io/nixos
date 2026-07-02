@@ -13,6 +13,12 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # One base16 scheme themes GTK/cursor/fonts consistently (Omarchy-style)
+    stylix = {
+      url = "github:nix-community/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -44,6 +50,10 @@
           ./modules/desktop.nix
           ./modules/nvidia.nix
           ./modules/gaming.nix
+
+          # Theming (stylix + our palette choices)
+          inputs.stylix.nixosModules.stylix
+          ./modules/theme.nix
 
           # Home Manager
           home-manager.nixosModules.home-manager

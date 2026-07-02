@@ -25,7 +25,7 @@ hl.monitor({
 
 local terminal    = "ghostty"
 local fileManager = "thunar"
-local menu        = "wofi --show drun"
+local menu        = "walker"
 
 
 -------------------------------
@@ -47,6 +47,7 @@ hl.env("XCURSOR_THEME", "macOS")
 hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start hyprland-session.target")
     hl.exec_cmd("quickshell")
+    hl.exec_cmd("walker --gapplication-service") -- resident for instant opens
     hl.exec_cmd("dunst")
     hl.exec_cmd("hypridle")
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
@@ -192,7 +193,7 @@ hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { desc = "Pseudotile" })
 hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"), { desc = "Toggle split direction" })
 
 -- Clipboard
-hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("cliphist list | wofi --dmenu | cliphist decode | wl-copy"),
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("cliphist list | walker --dmenu | cliphist decode | wl-copy"),
     { desc = "Clipboard history" })
 
 -- Screenshots
@@ -236,11 +237,11 @@ hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true, desc = 
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, desc = "Resize window" })
 
 -- Media
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"),
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("swayosd-client --output-volume raise --max-volume 100"),
     { locked = true, repeating = true, desc = "Volume up" })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("swayosd-client --output-volume lower"),
     { locked = true, repeating = true, desc = "Volume down" })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"),
     { locked = true, desc = "Mute" })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true, desc = "Play/pause" })
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true, desc = "Next track" })
@@ -256,6 +257,10 @@ hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("systemctl --user restart wal
 hl.bind(mainMod .. " + CTRL + W",
     hl.dsp.exec_cmd("awww img /home/pjanderson/nixos/config/wallpapers/tokyonight-nix.png --transition-type fade"),
     { desc = "Reset wallpaper" })
+
+-- Power menu (Omarchy-style)
+hl.bind(mainMod .. " + BackSpace", hl.dsp.exec_cmd("~/.config/hypr/scripts/power-menu.sh"),
+    { desc = "Power menu (lock/logout/reboot/shutdown)" })
 
 -- Cheatsheet: this very list
 hl.bind(mainMod .. " + SHIFT + slash", hl.dsp.exec_cmd("~/.config/hypr/scripts/keybinds.sh"),

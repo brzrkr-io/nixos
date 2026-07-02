@@ -32,6 +32,9 @@ in
       nixpkgs-fmt
       prettier
       fastfetch
+      # Launcher (walker UI; elephant backend runs as a user service below)
+      walker
+
       # Gaming tools
       prismlauncher
       protonup-qt
@@ -53,7 +56,7 @@ in
     file = {
       ".config/hypr".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/hypr";
       ".config/quickshell".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/quickshell";
-      ".config/wofi".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/wofi";
+      ".config/walker".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/walker";
       ".config/dunst".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/dunst";
       ".config/ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/ghostty";
       ".config/nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
@@ -65,28 +68,13 @@ in
   # ============================================================================
   # CURSOR, GTK & QT
   # ============================================================================
-  home.pointerCursor = {
-    name = "macOS";
-    package = pkgs.apple-cursor;
-    size = 24;
-    gtk.enable = true;
-    x11.enable = true;
-  };
-
-  # The GTK portal reads GSettings/dconf, not settings.ini — without this,
-  # GTK apps show the Adwaita default cursor while the compositor shows the
-  # themed one (mismatched cursors across windows).
+  # Cursor, GTK theme, and fonts are owned by stylix (modules/theme.nix).
+  # The GTK portal reads GSettings/dconf, not settings.ini — keep the cursor
+  # synced there so GTK apps never fall back to Adwaita (mkDefault: stylix
+  # wins if it also writes these keys).
   dconf.settings."org/gnome/desktop/interface" = {
-    cursor-theme = config.home.pointerCursor.name;
-    cursor-size = config.home.pointerCursor.size;
-  };
-
-  gtk = {
-    enable = true;
-    font = {
-      name = "JetBrainsMono Nerd Font";
-      size = 9;
-    };
+    cursor-theme = lib.mkDefault config.home.pointerCursor.name;
+    cursor-size = lib.mkDefault config.home.pointerCursor.size;
   };
 
   # ============================================================================
@@ -130,6 +118,12 @@ in
       WantedBy = [ "graphical-session.target" ];
     };
   };
+
+  # Walker's data backend (apps, calc, files providers)
+  services.elephant.enable = true;
+
+  # Volume/brightness on-screen display (media keys call swayosd-client)
+  services.swayosd.enable = true;
 
   # Polkit authentication agent (GTK)
   systemd.user.services.polkit-gnome-agent = {

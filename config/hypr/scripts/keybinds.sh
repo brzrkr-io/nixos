@@ -12,4 +12,4 @@ hyprctl binds -j | jq -r '
   .[]
   | select(.description != "")
   | "\(mods + (if mods == "" then "" else "+" end) + .key)\t\(.description)"
-' | sort -u | column -t -s $'\t' | wofi --dmenu --prompt "keybinds" --width 720 --height 640 >/dev/null || true
+' | sort -u | column -t -s $'\t' | walker --dmenu --placeholder keybinds >/dev/null || true

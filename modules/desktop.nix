@@ -91,7 +91,6 @@
   environment.systemPackages = with pkgs; [
     # Shell / launcher / notifications
     quickshell
-    wofi
     dunst
     libnotify
 
