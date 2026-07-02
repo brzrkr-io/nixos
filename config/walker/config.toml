@@ -1,4 +1,5 @@
 # Walker launcher — minimal config (elephant provides the data)
+theme = "tokyonight"
 close_when_open = true
 
 [providers]
