@@ -60,6 +60,10 @@
   # Required for dconf-based settings (GTK theme, cursor via GSettings) to apply
   programs.dconf.enable = true;
 
+  # USB automount + trash/MTP/network shares in Thunar (thunar-volman needs these)
+  services.udisks2.enable = true;
+  services.gvfs.enable = true;
+
   # ==========================================================================
   # FONTS
   # ==========================================================================
