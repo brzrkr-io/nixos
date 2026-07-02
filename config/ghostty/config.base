@@ -47,3 +47,4 @@ cursor-click-to-move = true
 # Cursor animation shader (floaty smear). Swap the file to change the effect:
 # cursor_tail / cursor_sweep / ripple_cursor / sonic_boom_cursor / ...
 custom-shader = shaders/cursor_warp.glsl
+custom-shader-animation = always

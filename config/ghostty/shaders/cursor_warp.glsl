@@ -5,14 +5,14 @@ vec3 sRGBToLinear(vec3 c) {
 
 // --- CONFIGURATION ---
 vec4 TRAIL_COLOR = vec4(sRGBToLinear(iCurrentCursorColor.rgb), iCurrentCursorColor.a); // for custom color: vec4(0.2, 0.6, 1.0, 0.5); (wrap in sRGBToLinear for correct brightness)
-const float DURATION = 0.2; // total animation time
+const float DURATION = 0.32; // total animation time
 const float TRAIL_SIZE = 0.8; // 0.0 = all corners move together. 1.0 = max smear (leading corners jump instantly)
-const float THRESHOLD_MIN_DISTANCE = 1.5; // min distance to show trail (units of cursor height)
-const float BLUR = 1.0; // blur size in pixels (for antialiasing)
+const float THRESHOLD_MIN_DISTANCE = 0.4; // min distance to show trail (units of cursor height)
+const float BLUR = 1.5; // blur size in pixels (for antialiasing)
 const float TRAIL_THICKNESS = 1.0;  // 1.0 = full cursor height, 0.0 = zero height, >1.0 = funky aah
 const float TRAIL_THICKNESS_X = 0.9;
 
-const float FADE_ENABLED = 0.0; // 1.0 to enable fade gradient along the trail, 0.0 to disable
+const float FADE_ENABLED = 1.0; // 1.0 to enable fade gradient along the trail, 0.0 to disable
 const float FADE_EXPONENT = 5.0; // exponent for fade gradient along the trail
 
 // --- CONSTANTS for easing functions ---
@@ -37,10 +37,10 @@ const float SPRING_DAMPING = 0.9;
 //     return 1.0 - (1.0 - x) * (1.0 - x);
 // }
 
-// // EaseOutCubic
-// float ease(float x) {
-//     return 1.0 - pow(1.0 - x, 3.0);
-// }
+// EaseOutCubic (smooth, no violent start — swapped from EaseOutCirc)
+float ease(float x) {
+    return 1.0 - pow(1.0 - x, 3.0);
+}
 
 // // EaseOutQuart
 // float ease(float x) {
@@ -62,10 +62,10 @@ const float SPRING_DAMPING = 0.9;
 //     return x == 1.0 ? 1.0 : 1.0 - pow(2.0, -10.0 * x);
 // }
 
-// EaseOutCirc
-float ease(float x) {
-    return sqrt(1.0 - pow(x - 1.0, 2.0));
-}
+// // EaseOutCirc
+// float ease(float x) {
+//     return sqrt(1.0 - pow(x - 1.0, 2.0));
+// }
 
 // // EaseOutBack
 // float ease(float x) {
