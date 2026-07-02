@@ -26,7 +26,8 @@
 
   hardware.nvidia = {
     modesetting.enable = true;
-    open = false;
+    # Open kernel module: NVIDIA's recommended default for Turing+ since v560
+    open = true;
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
     powerManagement.enable = false;

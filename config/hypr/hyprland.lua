@@ -32,14 +32,10 @@ local menu        = "wofi --show drun"
 ---- ENVIRONMENT VARIABLES ----
 -------------------------------
 
-hl.env("LIBVA_DRIVER_NAME", "nvidia")
-hl.env("GBM_BACKEND", "nvidia-drm")
-hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
-hl.env("NIXOS_OZONE_WL", "1")
+-- NVIDIA/Ozone vars live in the nix modules (single source of truth);
+-- only cursor theming is compositor-specific enough to belong here
 hl.env("XCURSOR_SIZE", "24")
-hl.env("XCURSOR_THEME", "phinger-cursors-dark")
-hl.env("HYPRCURSOR_SIZE", "24")
-hl.env("HYPRCURSOR_THEME", "phinger-cursors-dark")
+hl.env("XCURSOR_THEME", "BreezeX-RosePine-Linux")
 
 
 -------------------
@@ -50,9 +46,7 @@ hl.env("HYPRCURSOR_THEME", "phinger-cursors-dark")
 -- session target below is what activates them (greetd launches Hyprland bare)
 hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start hyprland-session.target")
-    -- QT_SCALE_FACTOR=1: the global 0.9 session var would override the
-    -- monitor's 2x scale and render the bar at less than half size
-    hl.exec_cmd("env QT_SCALE_FACTOR=1 quickshell")
+    hl.exec_cmd("quickshell")
     hl.exec_cmd("dunst")
     hl.exec_cmd("hypridle")
     hl.exec_cmd("wl-paste --type text --watch cliphist store")

@@ -66,15 +66,11 @@ in
   # CURSOR, GTK & QT
   # ============================================================================
   home.pointerCursor = {
-    name = "phinger-cursors-dark";
-    package = pkgs.phinger-cursors;
+    name = "BreezeX-RosePine-Linux";
+    package = pkgs.rose-pine-cursor;
     size = 24;
     gtk.enable = true;
     x11.enable = true;
-    hyprcursor = {
-      enable = true;
-      size = 24;
-    };
   };
 
   gtk = {
@@ -84,16 +80,6 @@ in
       size = 9;
     };
   };
-
-  xdg.configFile."qt5ct/qt5ct.conf".text = ''
-    [Appearance]
-    font="JetBrainsMono Nerd Font,9,-1,5,50,0,0,0,0,0"
-  '';
-
-  xdg.configFile."qt6ct/qt6ct.conf".text = ''
-    [Appearance]
-    font="JetBrainsMono Nerd Font,9,-1,5,50,0,0,0,0,0"
-  '';
 
   # ============================================================================
   # USER SERVICES

@@ -63,8 +63,6 @@
   fonts = {
     enableDefaultPackages = true;
     packages = with pkgs; [
-      monaspace
-      nerd-fonts.monaspace
       nerd-fonts.jetbrains-mono
       font-awesome
     ];
@@ -78,16 +76,13 @@
   # ==========================================================================
   # WAYLAND SESSION VARIABLES
   # ==========================================================================
+  # XDG_SESSION_* / XDG_CURRENT_DESKTOP come from the compositor and session
+  # file — forcing them globally leaks into TTY/SSH sessions.
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     MOZ_ENABLE_WAYLAND = "1";
     QT_QPA_PLATFORM = "wayland;xcb";
-    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-    QT_SCALE_FACTOR = "0.9"; # Smaller menus and UI elements
     ELECTRON_OZONE_PLATFORM_HINT = "wayland";
-    XDG_SESSION_TYPE = "wayland";
-    XDG_CURRENT_DESKTOP = "Hyprland";
-    XDG_SESSION_DESKTOP = "Hyprland";
   };
 
   # ==========================================================================
@@ -131,7 +126,6 @@
     networkmanagerapplet
 
     # Theming
-    phinger-cursors
     adwaita-icon-theme
 
     # Apps
