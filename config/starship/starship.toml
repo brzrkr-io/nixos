@@ -1,108 +1,94 @@
 # Starship Configuration (base — palette appended by the `theme` CLI into starship.toml)
-# Prompt structure only; colors reference [palettes.theme] names
-# DevOps layout: dir · git · k8s ctx · aws · terraform · nix-shell · duration
+# Pill style: rounded capsule segments matching the bar's aesthetic.
+# Alternate preset: presets/devops-two-line.toml (cp over this file + `reload`)
 
 "$schema" = 'https://starship.rs/config-schema.json'
 
 palette = "theme"
 
 format = """
-$directory\
+[](blue)\
+[$directory](fg:bg bg:blue)\
+[](fg:blue bg:bg_highlight)\
 $git_branch\
 $git_status\
+[](fg:bg_highlight)\
 $kubernetes\
 $aws\
-$terraform\
 $nix_shell\
-$cmd_duration
+$cmd_duration\
 $character"""
 
-right_format = """$jobs$time"""
+right_format = """[](comment)[$time](fg:bg bg:comment)[](comment)"""
 
-# Two-line prompt: context up top, input on a clean line below
 [line_break]
-disabled = false
+disabled = true
 
 [directory]
-style = "bold cyan"
-format = "[$path]($style)[$read_only](red) "
-truncation_length = 3
+style = "fg:bg bg:blue"
+format = "[ $path ]($style)"
+truncation_length = 2
 truncate_to_repo = true
-read_only = " 󰌾"
 
 [git_branch]
 symbol = " "
-style = "bold magenta"
-format = "[$symbol$branch]($style) "
+style = "fg:magenta bg:bg_highlight"
+format = "[ $symbol$branch]($style)"
 
 [git_status]
-style = "bold red"
-format = "([$all_status$ahead_behind]($style) )"
+style = "fg:red bg:bg_highlight"
+format = "[( $all_status$ahead_behind)]($style)[ ](bg:bg_highlight)"
 conflicted = "!"
-ahead = "⇡${count}"
-behind = "⇣${count}"
+ahead = "⇡"
+behind = "⇣"
 diverged = "⇕"
 up_to_date = ""
 untracked = "?"
-stashed = "󰆓"
+stashed = ""
 modified = "*"
 staged = "+"
-renamed = "»"
+renamed = ""
 deleted = "✘"
 
-# ── DevOps context ─────────────────────────────────────────────────────
-# k8s context always visible (you live in kubectl); ⚠ red when prod-ish
+# k8s pill only when KUBE context is prod-flavored OR namespace is set —
+# quiet by default, loud when it matters
 [kubernetes]
 disabled = false
-symbol = "󱃾 "
-style = "bold blue"
-format = "[$symbol$context( \\($namespace\\))]($style) "
-detect_files = []          # always on, not just in k8s-ish dirs
+symbol = "󱃾"
+style = "fg:blue"
+format = " [$symbol $context]($style)"
+detect_env_vars = ["KUBECONFIG"]
 [[kubernetes.contexts]]
 context_pattern = ".*prod.*"
-style = "bold red"
-context_alias = "PROD:$context"
+style = "bold fg:bg bg:red"
+context_alias = " PROD:$context "
 
-# AWS: only when a profile/region is actually exported — no noise otherwise
 [aws]
-symbol = "󰸏 "
-style = "bold orange"
-format = "[$symbol$profile( \\($region\\))]($style) "
+symbol = "󰸏"
+style = "fg:orange"
+format = " [$symbol $profile]($style)"
 force_display = false
 
-[terraform]
-symbol = "󱁢 "
-style = "bold magenta"
-format = "[$symbol$workspace]($style) "
-
-# ❄ when inside a nix dev shell — pairs with the direnv/flake workflow
 [nix_shell]
-symbol = "󱄅 "
-style = "bold blue1"
-format = "[$symbol$state]($style) "
+symbol = "󱄅"
+style = "fg:blue1"
+format = " [$symbol]($style)"
 impure_msg = ""
 pure_msg = ""
 unknown_msg = ""
 
 [cmd_duration]
-min_time = 2000
-style = "yellow"
-format = "[󱎫 $duration]($style)"
+min_time = 3000
+style = "fg:yellow"
+format = " [$duration]($style)"
 
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vimcmd_symbol = "[❮](bold blue)"
-
-[jobs]
-symbol = "󰒲 "
-style = "bold comment"
-format = "[$symbol$number]($style) "
+success_symbol = " [❯](bold green)"
+error_symbol = " [❯](bold red)"
+vimcmd_symbol = " [❮](bold blue)"
 
 [time]
 disabled = false
-style = "comment"
-format = "[$time]($style)"
 time_format = "%H:%M"
 
 # tokyonight dark (appended to starship.base.toml by `theme apply`)
