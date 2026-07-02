@@ -173,12 +173,18 @@ local mainMod = "SUPER"
 
 -- Apps
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal), { desc = "Open terminal" })
+hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd(menu), { desc = "App launcher (Spotlight-style)" })
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(menu), { desc = "App launcher" })
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager), { desc = "File manager" })
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("hyprlock"), { desc = "Lock screen" })
 
--- Windows
+-- Windows (SUPER = Cmd: Q quits, W closes, M "minimizes", Tab switches)
 hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { desc = "Close window" })
+hl.bind(mainMod .. " + W", hl.dsp.window.close(), { desc = "Close window (Cmd+W style)" })
+hl.bind(mainMod .. " + Tab", hl.dsp.cycle_next(), { desc = "Switch window (Cmd+Tab style)" })
+hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.cycle_next("prev"), { desc = "Switch window backwards" })
+hl.bind(mainMod .. " + M", hl.dsp.window.move({ workspace = "special:magic" }),
+    { desc = "Minimize to scratchpad (Cmd+M style)" })
 hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exit(), { desc = "Exit Hyprland" })
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }), { desc = "Toggle floating" })
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen(), { desc = "Fullscreen" })
