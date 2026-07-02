@@ -168,80 +168,92 @@ hl.config({
 
 local mainMod = "SUPER"
 
+-- Every bind carries a desc: it documents the config AND feeds the
+-- SUPER+SHIFT+/ cheatsheet (scripts/keybinds.sh reads them via hyprctl)
+
 -- Apps
-hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("hyprlock"))
+hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal), { desc = "Open terminal" })
+hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(menu), { desc = "App launcher" })
+hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager), { desc = "File manager" })
+hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("hyprlock"), { desc = "Lock screen" })
 
 -- Windows
-hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exit())
-hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen())
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
-hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit")) -- dwindle only
+hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { desc = "Close window" })
+hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exit(), { desc = "Exit Hyprland" })
+hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }), { desc = "Toggle floating" })
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen(), { desc = "Fullscreen" })
+hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { desc = "Pseudotile" })
+hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"), { desc = "Toggle split direction" })
 
 -- Clipboard
-hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("cliphist list | wofi --dmenu | cliphist decode | wl-copy"))
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("cliphist list | wofi --dmenu | cliphist decode | wl-copy"),
+    { desc = "Clipboard history" })
 
 -- Screenshots
-hl.bind("Print", hl.dsp.exec_cmd("grim -g \"$(slurp -d)\" - | swappy -f -"))
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim - | swappy -f -"))
+hl.bind("Print", hl.dsp.exec_cmd("grim -g \"$(slurp -d)\" - | swappy -f -"), { desc = "Screenshot region" })
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim - | swappy -f -"), { desc = "Screenshot full screen" })
 
 -- Focus (vim keys + arrows)
-hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "down" }))
-hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }))
-hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "down" }))
-hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
+hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }), { desc = "Focus left" })
+hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "down" }), { desc = "Focus down" })
+hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "up" }), { desc = "Focus up" })
+hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }), { desc = "Focus right" })
+hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }), { desc = "Focus left" })
+hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "down" }), { desc = "Focus down" })
+hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }), { desc = "Focus up" })
+hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }), { desc = "Focus right" })
 
 -- Move windows
-hl.bind(mainMod .. " + SHIFT + h", hl.dsp.window.move({ direction = "left" }))
-hl.bind(mainMod .. " + SHIFT + j", hl.dsp.window.move({ direction = "down" }))
-hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.move({ direction = "up" }))
-hl.bind(mainMod .. " + SHIFT + l", hl.dsp.window.move({ direction = "right" }))
+hl.bind(mainMod .. " + SHIFT + h", hl.dsp.window.move({ direction = "left" }), { desc = "Move window left" })
+hl.bind(mainMod .. " + SHIFT + j", hl.dsp.window.move({ direction = "down" }), { desc = "Move window down" })
+hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.move({ direction = "up" }), { desc = "Move window up" })
+hl.bind(mainMod .. " + SHIFT + l", hl.dsp.window.move({ direction = "right" }), { desc = "Move window right" })
 
--- Switch workspaces with mainMod + [0-9]
--- Move active window to a workspace with mainMod + SHIFT + [0-9]
+-- Workspaces: SUPER+[0-9] switch, SUPER+SHIFT+[0-9] move window
 for i = 1, 10 do
     local key = i % 10 -- 10 maps to key 0
-    hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
-    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
+    hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }),
+        { desc = "Go to workspace " .. i })
+    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }),
+        { desc = "Move window to workspace " .. i })
 end
 
 -- Special workspace (scratchpad)
-hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"))
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
+hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"), { desc = "Toggle scratchpad" })
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }),
+    { desc = "Move window to scratchpad" })
 
 -- Mouse
-hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
-hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
-hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { desc = "Next workspace" })
+hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }), { desc = "Previous workspace" })
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true, desc = "Drag window" })
+hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, desc = "Resize window" })
 
 -- Media
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"),
-    { locked = true, repeating = true })
+    { locked = true, repeating = true, desc = "Volume up" })
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),
-    { locked = true, repeating = true })
+    { locked = true, repeating = true, desc = "Volume down" })
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
-    { locked = true })
-hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
-hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+    { locked = true, desc = "Mute" })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true, desc = "Play/pause" })
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true, desc = "Next track" })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true, desc = "Previous track" })
 
 -- Gaming
-hl.bind(mainMod .. " + G", hl.dsp.exec_cmd("steam"))
-hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("runelite"))
+hl.bind(mainMod .. " + G", hl.dsp.exec_cmd("steam"), { desc = "Launch Steam" })
+hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("runelite"), { desc = "Launch RuneLite" })
 
 -- Wallpaper (useful after rebuilds)
-hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("systemctl --user restart wallpaper"))
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("systemctl --user restart wallpaper"),
+    { desc = "Restart wallpaper service" })
 hl.bind(mainMod .. " + CTRL + W",
-    hl.dsp.exec_cmd("awww img /home/pjanderson/nixos/config/wallpapers/tokyonight-nix.png --transition-type fade"))
+    hl.dsp.exec_cmd("awww img /home/pjanderson/nixos/config/wallpapers/tokyonight-nix.png --transition-type fade"),
+    { desc = "Reset wallpaper" })
+
+-- Cheatsheet: this very list
+hl.bind(mainMod .. " + SHIFT + slash", hl.dsp.exec_cmd("~/.config/hypr/scripts/keybinds.sh"),
+    { desc = "Show this keybind cheatsheet" })
 
 
 ----------------------
