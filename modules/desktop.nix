@@ -57,6 +57,9 @@
   # ==========================================================================
   security.polkit.enable = true;
 
+  # Required for dconf-based settings (GTK theme, cursor via GSettings) to apply
+  programs.dconf.enable = true;
+
   # ==========================================================================
   # FONTS
   # ==========================================================================
