@@ -5,8 +5,8 @@
 ------------------
 
 hl.monitor({
-    output   = "DP-2",
-    mode     = "3840x2160@30",
+    output   = "HDMI-A-1", -- new cable (2026-07): full 4K@60, was DP-2 capped at 30Hz
+    mode     = "3840x2160@60",
     position = "0x0",
     scale    = "2",
 })
