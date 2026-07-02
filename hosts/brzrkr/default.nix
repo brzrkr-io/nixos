@@ -14,7 +14,9 @@
         configurationLimit = 10;
       };
       efi.canTouchEfiVariables = true;
-      timeout = 3;
+      # Skip the menu entirely; HOLD SPACE during boot to bring it up
+      # (that's how you reach older generations for rollback)
+      timeout = 0;
     };
 
     kernelParams = [
@@ -32,6 +34,9 @@
     consoleLogLevel = 0;
     initrd.verbose = false;
 
+    # systemd-based stage 1: parallel initrd, cleaner LUKS passphrase prompt
+    initrd.systemd.enable = true;
+
     supportedFilesystems = [ "ext4" "btrfs" "ntfs" ];
     tmp.cleanOnBoot = true;
   };
@@ -39,6 +44,10 @@
   # ===========================================================================
   # MEMORY (no disk swap partition exists — compressed RAM swap instead)
   # ===========================================================================
+  # Boot speed: this desktop doesn't need to block on "network fully online"
+  # (it alone cost 10.6s of every boot; docker etc. come up fine without it)
+  systemd.services.NetworkManager-wait-online.enable = false;
+
   zramSwap = {
     enable = true;
     memoryPercent = 50;
@@ -155,7 +164,7 @@
     gc = {
       automatic = true;
       dates = "weekly";
-      options = "--delete-older-than 14d";
+      options = "--delete-older-than 7d";
     };
   };
 
