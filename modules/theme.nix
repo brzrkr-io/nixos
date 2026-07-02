@@ -16,7 +16,7 @@
 
     cursor = {
       package = pkgs.apple-cursor;
-      name = "macOS";
+      name = "macOS-White";
       size = 24;
     };
 

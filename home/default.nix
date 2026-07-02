@@ -6,6 +6,10 @@ let
   dotfiles = "/home/${username}/nixos/config";
 in
 {
+  imports = [
+    ./spotify.nix
+  ];
+
   home = {
     username = username;
     homeDirectory = "/home/${username}";
