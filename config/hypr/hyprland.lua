@@ -193,7 +193,7 @@ hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { desc = "Pseudotile" })
 hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"), { desc = "Toggle split direction" })
 
 -- Clipboard
-hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("cliphist list | walker --dmenu | cliphist decode | wl-copy"),
+ hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | walker --dmenu | cliphist decode | wl-copy"),
     { desc = "Clipboard history" })
 
 -- Screenshots

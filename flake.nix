@@ -25,6 +25,12 @@
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # App-aware key remapping (mac Cmd shortcuts inside GUI apps)
+    xremap-flake = {
+      url = "github:xremap/nix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -60,6 +66,10 @@
           # Theming (stylix + our palette choices)
           inputs.stylix.nixosModules.stylix
           ./modules/theme.nix
+
+          # Mac-style Cmd shortcuts inside GUI apps
+          inputs.xremap-flake.nixosModules.default
+          ./modules/mac-keys.nix
 
           # Home Manager
           home-manager.nixosModules.home-manager
