@@ -106,7 +106,7 @@ in
     };
   };
 
-  # Wallpaper (swww daemon + image)
+  # Wallpaper (awww daemon + image; awww is swww's successor in nixpkgs)
   systemd.user.services.wallpaper = {
     Unit = {
       Description = "Wallpaper service";
@@ -115,17 +115,14 @@ in
     };
 
     Service = {
-      ExecStart = "${pkgs.writeShellScript "wallpaper-service" ''
-        # Kill any existing swww processes
-        ${pkgs.procps}/bin/pkill -f swww-daemon 2>/dev/null || true
-
-        # Start daemon and set wallpaper
-        ${pkgs.swww}/bin/swww-daemon &
-        sleep 1
-        ${pkgs.swww}/bin/swww img ${dotfiles}/wallpapers/linux_retro.png --transition-type fade
-
-        # Keep service running by monitoring the daemon
-        wait
+      # Daemon in the foreground so systemd tracks it; image set once it responds
+      ExecStart = "${pkgs.awww}/bin/awww-daemon";
+      ExecStartPost = "${pkgs.writeShellScript "set-wallpaper" ''
+        for _ in $(seq 1 50); do
+          ${pkgs.awww}/bin/awww query >/dev/null 2>&1 && break
+          sleep 0.2
+        done
+        ${pkgs.awww}/bin/awww img ${dotfiles}/wallpapers/linux_retro.png --transition-type fade
       ''}";
       Restart = "on-failure";
       RestartSec = "5s";

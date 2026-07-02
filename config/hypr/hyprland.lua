@@ -46,11 +46,13 @@ hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Ice")
 ---- AUTOSTART ----
 -------------------
 
--- polkit agent and wallpaper (swww) run as systemd user services; starting the
+-- polkit agent and wallpaper (awww) run as systemd user services; starting the
 -- session target below is what activates them (greetd launches Hyprland bare)
 hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start hyprland-session.target")
-    hl.exec_cmd("quickshell")
+    -- QT_SCALE_FACTOR=1: the global 0.9 session var would override the
+    -- monitor's 2x scale and render the bar at less than half size
+    hl.exec_cmd("env QT_SCALE_FACTOR=1 quickshell")
     hl.exec_cmd("dunst")
     hl.exec_cmd("hypridle")
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
@@ -245,7 +247,7 @@ hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("runelite"))
 -- Wallpaper (useful after rebuilds)
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("systemctl --user restart wallpaper"))
 hl.bind(mainMod .. " + CTRL + W",
-    hl.dsp.exec_cmd("swww img /home/pjanderson/nixos/config/wallpapers/linux_retro.png --transition-type fade"))
+    hl.dsp.exec_cmd("awww img /home/pjanderson/nixos/config/wallpapers/linux_retro.png --transition-type fade"))
 
 
 ----------------------

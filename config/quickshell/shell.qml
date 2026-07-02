@@ -1,6 +1,8 @@
 // Quickshell top bar — Tokyo Night, single file.
 // Left:  workspaces (persistent 1-5 + occupied), focused window title
 // Right: volume, network, tray, clock
+// NOTE: launch with QT_SCALE_FACTOR=1 (hyprland.lua does this) — the global
+// QT_SCALE_FACTOR=0.9 session hack otherwise overrides the monitor's 2x scale.
 
 import Quickshell
 import Quickshell.Io
@@ -12,12 +14,16 @@ import QtQuick.Layouts
 ShellRoot {
     id: root
 
-    // ── Theme ────────────────────────────────────────────────────────────
-    property color colBg: "#1a1b26"
+    // ── Theme (Tokyo Night) ──────────────────────────────────────────────
+    property color colBar: "#16161e"      // bar background (darker than windows)
+    property color colPill: "#1f2335"     // module pill background
+    property color colPillHover: "#292e42"
     property color colFg: "#c0caf5"
-    property color colAccent: "#7aa2f7"
+    property color colDim: "#565f89"
+    property color colAccent: "#7aa2f7"   // blue
     property color colPurple: "#bb9af7"
-    property color colMuted: "#414868"
+    property color colCyan: "#7dcfff"
+    property color colGreen: "#9ece6a"
     property color colRed: "#f7768e"
     property string fontFamily: "JetBrainsMono Nerd Font"
     property int fontSize: 13
@@ -124,6 +130,43 @@ ShellRoot {
         onTriggered: root.now = new Date()
     }
 
+    // ── Reusable module pill ─────────────────────────────────────────────
+    component Pill: Rectangle {
+        id: pill
+        property alias hovered: pillMouse.containsMouse
+        default property alias content: inner.data
+        signal clicked(var mouse)
+        signal wheeled(var wheel)
+
+        radius: 7
+        color: hovered ? root.colPillHover : root.colPill
+        implicitHeight: 26
+        implicitWidth: inner.implicitWidth + 22
+        Layout.alignment: Qt.AlignVCenter
+
+        RowLayout {
+            id: inner
+            anchors.centerIn: parent
+            spacing: 7
+        }
+
+        MouseArea {
+            id: pillMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            onClicked: mouse => pill.clicked(mouse)
+            onWheel: wheel => pill.wheeled(wheel)
+        }
+    }
+
+    component PillText: Text {
+        font.family: root.fontFamily
+        font.pixelSize: root.fontSize
+        color: root.colFg
+        Layout.alignment: Qt.AlignVCenter
+    }
+
     // ── Bar ──────────────────────────────────────────────────────────────
     Variants {
         model: Quickshell.screens
@@ -138,51 +181,69 @@ ShellRoot {
                 right: true
             }
 
-            implicitHeight: 30
-            color: root.colBg
+            implicitHeight: 36
+            color: root.colBar
+
+            // hairline separator under the bar
+            Rectangle {
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 1
+                color: "#0d0d12"
+            }
 
             RowLayout {
                 anchors.fill: parent
-                spacing: 6
+                anchors.leftMargin: 12
+                anchors.rightMargin: 12
+                anchors.bottomMargin: 1
+                spacing: 8
 
-                Item { implicitWidth: 6 } // + spacing = 12px left pad
+                // Workspaces: one pill, active number highlighted
+                Rectangle {
+                    radius: 7
+                    color: root.colPill
+                    implicitHeight: 26
+                    implicitWidth: wsRow.implicitWidth + 12
+                    Layout.alignment: Qt.AlignVCenter
 
-                // Workspaces: persistent 1-5, plus any occupied up to 10
-                Repeater {
-                    model: 10
+                    Row {
+                        id: wsRow
+                        anchors.centerIn: parent
+                        spacing: 2
 
-                    Rectangle {
-                        property var workspace: Hyprland.workspaces.values.find(ws => ws.id === index + 1) ?? null
-                        property bool isActive: Hyprland.focusedWorkspace?.id === index + 1
-                        property bool occupied: workspace !== null
+                        Repeater {
+                            model: 10
 
-                        visible: index < 5 || occupied || isActive
-                        Layout.preferredWidth: 22
-                        Layout.fillHeight: true
-                        color: "transparent"
+                            Rectangle {
+                                property var workspace: Hyprland.workspaces.values.find(ws => ws.id === index + 1) ?? null
+                                property bool isActive: Hyprland.focusedWorkspace?.id === index + 1
+                                property bool occupied: workspace !== null
 
-                        Text {
-                            anchors.centerIn: parent
-                            text: index + 1
-                            color: parent.isActive ? root.colAccent
-                                 : parent.occupied ? root.colFg
-                                 : root.colMuted
-                            font.family: root.fontFamily
-                            font.pixelSize: root.fontSize
-                            font.bold: parent.isActive
-                        }
+                                visible: index < 5 || occupied || isActive
+                                width: 22
+                                height: 20
+                                anchors.verticalCenter: parent.verticalCenter
+                                radius: 5
+                                color: isActive ? root.colAccent : "transparent"
 
-                        Rectangle {
-                            width: 18
-                            height: 2
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            anchors.bottom: parent.bottom
-                            color: parent.isActive ? root.colAccent : "transparent"
-                        }
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: index + 1
+                                    color: parent.isActive ? root.colBar
+                                         : parent.occupied ? root.colFg
+                                         : root.colDim
+                                    font.family: root.fontFamily
+                                    font.pixelSize: root.fontSize - 1
+                                    font.bold: parent.isActive
+                                }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: Hyprland.dispatch("workspace " + (index + 1))
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: Hyprland.dispatch("workspace " + (index + 1))
+                                }
+                            }
                         }
                     }
                 }
@@ -191,85 +252,93 @@ ShellRoot {
                 Text {
                     visible: root.activeWindow !== ""
                     text: root.activeWindow
-                    color: root.colMuted
+                    color: root.colDim
                     font.family: root.fontFamily
                     font.pixelSize: root.fontSize
                     elide: Text.ElideRight
                     maximumLineCount: 1
-                    Layout.leftMargin: 8
-                    Layout.maximumWidth: 320 // ~40ch at this size
+                    Layout.leftMargin: 6
+                    Layout.maximumWidth: 600
+                    Layout.alignment: Qt.AlignVCenter
                 }
 
                 Item { Layout.fillWidth: true } // spacer
 
                 // Volume: click = mute toggle, scroll = +/- 2%
-                Text {
-                    text: root.volumeMuted ? "󰝟 muted"
-                                           : "󰕾 " + root.volumeLevel + "%"
-                    color: root.volumeMuted ? root.colMuted : root.colFg
-                    font.family: root.fontFamily
-                    font.pixelSize: root.fontSize
+                Pill {
+                    onClicked: root.volAction(["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+                    onWheeled: wheel => root.volAction(
+                        ["set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@",
+                         wheel.angleDelta.y > 0 ? "2%+" : "2%-"])
 
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: root.volAction(["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
-                        onWheel: wheel => root.volAction(
-                            ["set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@",
-                             wheel.angleDelta.y > 0 ? "2%+" : "2%-"])
+                    PillText {
+                        text: root.volumeMuted ? "󰝟" : root.volumeLevel === 0 ? "󰕿" : root.volumeLevel < 50 ? "󰖀" : "󰕾"
+                        color: root.volumeMuted ? root.colDim : root.colCyan
+                    }
+                    PillText {
+                        text: root.volumeMuted ? "muted" : root.volumeLevel + "%"
+                        color: root.volumeMuted ? root.colDim : root.colFg
                     }
                 }
 
                 // Network
-                Text {
-                    text: root.netStatus === "ethernet" ? "󰈀 eth"
-                        : root.netStatus === "wifi" ? "󰖩 wifi"
-                        : "󰖪 offline"
-                    color: root.netStatus === "offline" ? root.colRed : root.colFg
-                    font.family: root.fontFamily
-                    font.pixelSize: root.fontSize
+                Pill {
+                    PillText {
+                        text: root.netStatus === "ethernet" ? "󰈀"
+                            : root.netStatus === "wifi" ? "󰖩"
+                            : "󰖪"
+                        color: root.netStatus === "offline" ? root.colRed : root.colGreen
+                    }
+                    PillText {
+                        text: root.netStatus === "offline" ? "offline" : root.netStatus
+                        color: root.netStatus === "offline" ? root.colRed : root.colFg
+                    }
                 }
 
-                // System tray
-                Repeater {
-                    model: SystemTray.items
+                // System tray (only visible when there are items)
+                Pill {
+                    visible: SystemTray.items.values.length > 0
 
-                    Image {
-                        source: modelData.icon
-                        sourceSize.width: 18
-                        sourceSize.height: 18
-                        Layout.preferredWidth: 18
-                        Layout.preferredHeight: 18
-                        Layout.alignment: Qt.AlignVCenter
+                    Repeater {
+                        model: SystemTray.items
 
-                        MouseArea {
-                            anchors.fill: parent
-                            acceptedButtons: Qt.LeftButton | Qt.RightButton
-                            onClicked: mouse => {
-                                if (mouse.button === Qt.LeftButton)
-                                    modelData.activate()
-                                else
-                                    modelData.secondaryActivate()
+                        Image {
+                            source: modelData.icon
+                            sourceSize.width: 18
+                            sourceSize.height: 18
+                            Layout.preferredWidth: 18
+                            Layout.preferredHeight: 18
+                            Layout.alignment: Qt.AlignVCenter
+
+                            MouseArea {
+                                anchors.fill: parent
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                onClicked: mouse => {
+                                    if (mouse.button === Qt.LeftButton)
+                                        modelData.activate()
+                                    else
+                                        modelData.secondaryActivate()
+                                }
                             }
                         }
                     }
                 }
 
                 // Clock: click toggles date
-                Text {
-                    text: Qt.formatDateTime(root.now,
-                        root.clockShowDate ? "ddd dd MMM  HH:mm" : "HH:mm")
-                    color: root.colPurple
-                    font.family: root.fontFamily
-                    font.pixelSize: root.fontSize
-                    font.bold: true
+                Pill {
+                    onClicked: root.clockShowDate = !root.clockShowDate
 
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: root.clockShowDate = !root.clockShowDate
+                    PillText {
+                        text: "󰥔"
+                        color: root.colPurple
+                    }
+                    PillText {
+                        text: Qt.formatDateTime(root.now,
+                            root.clockShowDate ? "ddd dd MMM  HH:mm" : "HH:mm")
+                        color: root.colPurple
+                        font.bold: true
                     }
                 }
-
-                Item { implicitWidth: 6 } // + spacing = 12px right pad
             }
         }
     }

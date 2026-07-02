@@ -101,7 +101,7 @@
     libnotify
 
     # Wallpaper, lock, idle
-    swww
+    awww
     hyprlock
     hypridle
 
