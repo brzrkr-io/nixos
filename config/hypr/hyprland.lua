@@ -38,6 +38,19 @@ hl.env("XCURSOR_SIZE", "24")
 hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
 
 
+----------------
+---- PLUGINS ----
+----------------
+
+-- Dynamic cursors: physics tilt/stretch + shake-to-find. The .so is a
+-- home-manager symlink (home/default.nix); guard so a fresh system without
+-- it doesn't error the whole config.
+local dc = os.getenv("HOME") .. "/.local/share/hypr-plugins/dynamic-cursors.so"
+if io.open(dc, "r") then
+    hl.plugin.load(dc)
+end
+
+
 -------------------
 ---- AUTOSTART ----
 -------------------

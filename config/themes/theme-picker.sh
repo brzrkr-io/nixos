@@ -1,5 +1,8 @@
+#!/usr/bin/env bash
 # theme-picker — walker dmenu over themes + wallpapers (SUPER+CTRL+T).
 # Picking a wallpaper also switches to its mapped theme (wallpaper-map.conf).
+# Run via the PATH wrapper (home/default.nix) which execs this file directly.
+set -euo pipefail
 
 entries() {
   theme list | sed 's/^/theme: /'

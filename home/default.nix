@@ -98,6 +98,12 @@ in
       ".config/ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/ghostty";
       ".config/nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
       ".config/helix".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/helix";
+
+      # Hyprland plugins at a stable path so hyprland.lua can load them without
+      # hardcoding store hashes (NOT under .config/hypr — that's a repo symlink
+      # home-manager can't write into)
+      ".local/share/hypr-plugins/dynamic-cursors.so".source =
+        "${pkgs.hyprlandPlugins.hypr-dynamic-cursors}/lib/libhypr-dynamic-cursors.so";
       ".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/starship/starship.toml";
       ".tmux.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux/tmux.conf";
     };

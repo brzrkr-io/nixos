@@ -1,9 +1,12 @@
-# theme — runtime theme switcher (Omarchy-style). Wrapped by writeShellApplication
-# in home/default.nix (which provides set -euo pipefail + runtime deps on PATH).
+#!/usr/bin/env bash
+# theme — runtime theme switcher (Omarchy-style). The `theme` command on PATH
+# (home/default.nix) is a thin wrapper that execs this file, so edits here
+# apply immediately — no rebuild.
 #
 # Layout: config/themes/<name>/<dark|light>/ holds per-app color fragments.
 # A stable symlink (~/.config/theme/current) points at the active variant;
 # apps that can't follow a symlink flip get their config regenerated instead.
+set -euo pipefail
 
 repo="$HOME/nixos"
 themes_dir="$repo/config/themes"
@@ -63,6 +66,19 @@ resolve_polarity() {
   esac
 }
 
+wallpaper_transition() { # <path> — smooth grow radiating from the cursor
+  local pos="center" cur
+  cur="$(hyprctl cursorpos 2>/dev/null | tr -d ' ' || true)"
+  if [[ "$cur" =~ ^[0-9]+,[0-9]+$ ]]; then pos="$cur"; fi
+  awww img "$1" \
+    --transition-type grow \
+    --transition-pos "$pos" \
+    --transition-duration 1.2 \
+    --transition-fps 30 \
+    --transition-bezier '.05,.7,.1,1' \
+    >/dev/null 2>&1 || true
+}
+
 set_wallpaper() { # [file]
   local file line mt mp wp
   file="${1:-}"
@@ -80,14 +96,16 @@ set_wallpaper() { # [file]
       else
         echo "$mp" >"$state_dir/mode"
       fi
+      wallpaper_transition "$wallpapers_dir/$file"
       apply nowall
+      return 0
     fi
-    awww img "$wallpapers_dir/$file" --transition-type fade >/dev/null 2>&1 || true
+    wallpaper_transition "$wallpapers_dir/$file"
     return 0
   fi
   wp="$(toml_get "$(readlink -f "$link")/theme.toml" wallpaper)"
   if [ -n "$wp" ]; then
-    awww img "$wallpapers_dir/$wp" --transition-type fade >/dev/null 2>&1 || true
+    wallpaper_transition "$wallpapers_dir/$wp"
   fi
 }
 
@@ -117,6 +135,12 @@ apply() { # [nowall]
   cat "$v/walker.css" "$repo/config/walker/themes/current/style.base.css" \
     >"$repo/config/walker/themes/current/style.css"
 
+  # kick off the wallpaper animation first — app reloads land mid-sweep so the
+  # whole switch reads as one motion
+  if [ "${1:-}" != nowall ]; then
+    set_wallpaper ""
+  fi
+
   # live refresh — every step best-effort (app may simply not be running)
   gtk="$(toml_get "$v/theme.toml" gtk)"
   if [ -n "$gtk" ]; then
@@ -138,10 +162,6 @@ apply() { # [nowall]
   # restart resident walker so it re-reads the regenerated CSS — routed through
   # hyprctl so it works even where this script can't see session processes
   hyprctl dispatch exec 'sh -c "pkill -x walker; sleep 0.3; exec walker --gapplication-service"' >/dev/null 2>&1 || true
-
-  if [ "${1:-}" != nowall ]; then
-    set_wallpaper ""
-  fi
 
   # stylix GTK palette + Spotify are baked at build time from nix-default.nix
   nd="$(toml_get "$themes_dir/nix-default.nix" theme)"
