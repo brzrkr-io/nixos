@@ -328,7 +328,7 @@ in
       setopt SHARE_HISTORY
 
       # Local bin
-      export PATH="$HOME/.local/bin:$PATH"
+      export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
     '';
   };
 
