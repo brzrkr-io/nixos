@@ -1,0 +1,4 @@
+name = "gruvbox"
+polarity = "dark"
+wallpaper = "linux_retro.png"
+gtk = "prefer-dark"

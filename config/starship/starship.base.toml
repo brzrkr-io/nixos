@@ -1,0 +1,57 @@
+# Starship Configuration (base — palette appended by the `theme` CLI into starship.toml)
+# Prompt structure only; colors reference [palettes.theme] names
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Palette section comes from the active theme fragment
+palette = "theme"
+
+# Prompt format
+format = """
+$directory\
+$git_branch\
+$git_status\
+$character"""
+
+# Time on the right
+right_format = """$time"""
+
+[line_break]
+disabled = true
+
+[time]
+disabled = false
+style = "bold magenta"
+format = "[$time]($style)"
+time_format = "%H:%M"
+
+[directory]
+style = "bold cyan"
+format = "[$path]($style)"
+truncation_length = 0
+truncate_to_repo = true
+
+[git_branch]
+symbol = ""
+style = "bold magenta"
+format = " ([$branch]($style))"
+
+[git_status]
+style = "bold red"
+format = "[$all_status]($style)"
+conflicted = "!"
+ahead = "↑"
+behind = "↓"
+diverged = "↕"
+up_to_date = ""
+untracked = "+"
+stashed = ""
+modified = "*"
+staged = ""
+renamed = ""
+deleted = ""
+
+[character]
+success_symbol = " [➜](bold blue)"
+error_symbol = " [➜](bold red)"
+vimcmd_symbol = " [❮](bold blue)"

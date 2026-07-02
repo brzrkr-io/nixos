@@ -1,0 +1,4 @@
+name = "gruvbox"
+polarity = "light"
+wallpaper = "trees.png"
+gtk = "prefer-light"

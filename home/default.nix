@@ -4,6 +4,33 @@
 
 let
   dotfiles = "/home/${username}/nixos/config";
+
+  # Runtime theme switcher (script lives in config/themes/theme.sh; fragments
+  # in config/themes/<name>/<dark|light>/). Nix only wraps it onto PATH with
+  # its dependencies — switching themes never needs a rebuild.
+  themeCli = pkgs.writeShellApplication {
+    name = "theme";
+    runtimeInputs = with pkgs; [
+      coreutils
+      findutils
+      gnugrep
+      gnused
+      procps
+      awww
+      glib # gsettings + gdbus (ghostty reload)
+      libnotify
+      dunst # dunstctl
+      neovim
+      tmux
+    ];
+    text = builtins.readFile ../config/themes/theme.sh;
+  };
+
+  themePicker = pkgs.writeShellApplication {
+    name = "theme-picker";
+    runtimeInputs = [ themeCli ];
+    text = builtins.readFile ../config/themes/theme-picker.sh;
+  };
 in
 {
   imports = [
@@ -42,6 +69,10 @@ in
       # Gaming tools
       prismlauncher
       protonup-qt
+    ] ++ [
+      # Theme switching (SUPER+CTRL+T picker; see config/themes/)
+      themeCli
+      themePicker
     ];
 
     # ==========================================================================
@@ -112,7 +143,7 @@ in
           ${pkgs.awww}/bin/awww query >/dev/null 2>&1 && break
           sleep 0.2
         done
-        ${pkgs.awww}/bin/awww img ${dotfiles}/wallpapers/tokyonight-nix.png --transition-type fade
+        ${themeCli}/bin/theme wallpaper
       ''}";
       Restart = "on-failure";
       RestartSec = "5s";
@@ -125,6 +156,30 @@ in
 
   # Walker's data backend (apps, calc, files providers)
   services.elephant.enable = true;
+
+  # Sunrise/sunset dark-mode daemon — drives `theme mode system`. Static
+  # coordinates (no geoclue); TODO: set these to your rough location.
+  services.darkman = {
+    enable = true;
+    settings = {
+      lat = 39.74;
+      lng = -104.99;
+      usegeoclue = false;
+    };
+    darkModeScripts.theme = "${themeCli}/bin/theme darkman-hook dark";
+    lightModeScripts.theme = "${themeCli}/bin/theme darkman-hook light";
+  };
+
+  # Seed theme state + current-theme symlink so first login after a fresh
+  # install isn't colorless (the `theme` CLI maintains these afterwards)
+  home.activation.themeInit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    themeState="$HOME/.local/state/theme"
+    mkdir -p "$themeState" "$HOME/.config/theme"
+    [ -f "$themeState/theme" ] || echo tokyonight > "$themeState/theme"
+    [ -f "$themeState/mode" ] || echo dark > "$themeState/mode"
+    [ -f "$themeState/polarity" ] || echo dark > "$themeState/polarity"
+    [ -e "$HOME/.config/theme/current" ] || ln -sfnT "${dotfiles}/themes/tokyonight/dark" "$HOME/.config/theme/current"
+  '';
 
   # Volume/brightness on-screen display (media keys call swayosd-client)
   services.swayosd.enable = true;

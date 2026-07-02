@@ -35,7 +35,7 @@ local menu        = "walker"
 -- NVIDIA/Ozone vars live in the nix modules (single source of truth);
 -- only cursor theming is compositor-specific enough to belong here
 hl.env("XCURSOR_SIZE", "24")
-hl.env("XCURSOR_THEME", "macOS-White")
+hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
 
 
 -------------------
@@ -59,6 +59,17 @@ end)
 ---- LOOK AND FEEL ----
 -----------------------
 
+-- Colors come from the active theme (~/.config/theme/current, flipped by the
+-- `theme` CLI); fallback keeps the compositor usable if the symlink is missing
+local themeOk, theme = pcall(dofile, os.getenv("HOME") .. "/.config/theme/current/hypr.lua")
+if not themeOk or type(theme) ~= "table" then
+    theme = {
+        active   = { "rgba(7aa2f7ee)", "rgba(bb9af7ee)" },
+        inactive = "rgba(414868aa)",
+        shadow   = "rgba(1a1a1aee)",
+    }
+end
+
 hl.config({
     general = {
         gaps_in          = 1,
@@ -66,8 +77,8 @@ hl.config({
         border_size      = 1,
 
         col              = {
-            active_border   = { colors = { "rgba(7aa2f7ee)", "rgba(bb9af7ee)" }, angle = 45 },
-            inactive_border = "rgba(414868aa)",
+            active_border   = { colors = theme.active, angle = 45 },
+            inactive_border = theme.inactive,
         },
 
         resize_on_border = true,
@@ -89,7 +100,7 @@ hl.config({
             enabled      = true,
             range        = 4,
             render_power = 3,
-            color        = "rgba(1a1a1aee)",
+            color        = theme.shadow,
         },
 
         blur             = {
@@ -251,12 +262,15 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true,
 hl.bind(mainMod .. " + G", hl.dsp.exec_cmd("steam"), { desc = "Launch Steam" })
 hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("runelite"), { desc = "Launch RuneLite" })
 
--- Wallpaper (useful after rebuilds)
+-- Theme + wallpaper (the `theme` CLI lives in home/default.nix)
+hl.bind(mainMod .. " + CTRL + T", hl.dsp.exec_cmd("theme-picker"),
+    { desc = "Theme/wallpaper picker" })
+hl.bind(mainMod .. " + CTRL + N", hl.dsp.exec_cmd("theme toggle"),
+    { desc = "Toggle light/dark mode" })
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("systemctl --user restart wallpaper"),
     { desc = "Restart wallpaper service" })
-hl.bind(mainMod .. " + CTRL + W",
-    hl.dsp.exec_cmd("awww img /home/pjanderson/nixos/config/wallpapers/tokyonight-nix.png --transition-type fade"),
-    { desc = "Reset wallpaper" })
+hl.bind(mainMod .. " + CTRL + W", hl.dsp.exec_cmd("theme wallpaper"),
+    { desc = "Reset wallpaper (current theme)" })
 
 -- Power menu (Omarchy-style)
 hl.bind(mainMod .. " + BackSpace", hl.dsp.exec_cmd("~/.config/hypr/scripts/power-menu.sh"),

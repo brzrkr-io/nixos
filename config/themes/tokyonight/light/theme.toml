@@ -1,0 +1,4 @@
+name = "tokyonight"
+polarity = "light"
+wallpaper = "trees.png"
+gtk = "prefer-light"

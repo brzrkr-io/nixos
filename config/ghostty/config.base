@@ -1,5 +1,5 @@
 # Ghostty Base Configuration
-# Theme colors are appended by the theme manager
+# Theme colors come from the fragment included after this file (see config)
 
 # Font
 font-family = "JetBrainsMono Nerd Font"
@@ -38,13 +38,6 @@ bold-is-bright = false
 # Input
 clipboard-paste-protection = false
 cursor-click-to-move = true
-
-# Tokyo Night theme
-theme = tokyonight
-
-# Selection colors
-selection-background = #33467c
-selection-foreground = #c0caf5
 
 
 

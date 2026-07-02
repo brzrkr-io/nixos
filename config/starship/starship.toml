@@ -1,9 +1,9 @@
-# Starship Configuration
-# Tokyo Night theme
+# Starship Configuration (base — palette appended by the `theme` CLI into starship.toml)
+# Prompt structure only; colors reference [palettes.theme] names
 
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# Use Tokyo Night palette
+# Palette section comes from the active theme fragment
 palette = "theme"
 
 # Prompt format
@@ -56,7 +56,7 @@ success_symbol = " [➜](bold blue)"
 error_symbol = " [➜](bold red)"
 vimcmd_symbol = " [❮](bold blue)"
 
-# Tokyo Night palette
+# tokyonight dark (appended to starship.base.toml by `theme apply`)
 [palettes.theme]
 bg = "#1a1b26"
 bg_dark = "#16161e"

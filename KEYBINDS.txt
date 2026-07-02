@@ -14,7 +14,9 @@ SUPER+8               Go to workspace 8
 SUPER+9               Go to workspace 9
 SUPER+BackSpace       Power menu (lock/logout/reboot/shutdown)
 SUPER+C               Clipboard history
-SUPER+CTRL+W          Reset wallpaper
+SUPER+CTRL+N          Toggle light/dark mode
+SUPER+CTRL+T          Theme/wallpaper picker
+SUPER+CTRL+W          Reset wallpaper (current theme)
 SUPER+D               App launcher
 SUPER+down            Focus down
 SUPER+E               File manager
