@@ -19,12 +19,17 @@
       timeout = 0;
     };
 
+    # Silent boot: splash covers the console; only critical kernel messages
+    # may print (everything still reaches the journal)
+    plymouth.enable = true;
     kernelParams = [
       "quiet"
-      "loglevel=3"
+      "splash"
+      "loglevel=2"
+      "systemd.show_status=false"
       "rd.systemd.show_status=false"
-      "rd.udev.log_level=3"
-      "udev.log_priority=3"
+      "rd.udev.log_level=2"
+      "udev.log_priority=2"
       "boot.shell_on_fail"
     ];
 
