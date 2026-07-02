@@ -6,7 +6,14 @@
   # STEAM + GAMEMODE
   # ==========================================================================
   programs.steam.enable = true;
-  programs.gamemode.enable = true;
+  programs.gamemode = {
+    enable = true;
+    # Hyprland has no screensaver; the inhibitor only spams DBus errors
+    settings.general.inhibit_screensaver = 0;
+  };
+
+  # Without this group, gamemoded can't switch the CPU governor (stays on powersave)
+  users.users.${username}.extraGroups = [ "gamemode" ];
 
   # ==========================================================================
   # PACKAGES

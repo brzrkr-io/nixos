@@ -202,7 +202,7 @@
     doggo
     speedtest-cli
     openvpn
-    protonvpn-gui
+    proton-vpn
 
     # System tools
     pciutils

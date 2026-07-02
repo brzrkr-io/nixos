@@ -112,7 +112,7 @@ in
           ${pkgs.awww}/bin/awww query >/dev/null 2>&1 && break
           sleep 0.2
         done
-        ${pkgs.awww}/bin/awww img ${dotfiles}/wallpapers/linux_retro.png --transition-type fade
+        ${pkgs.awww}/bin/awww img ${dotfiles}/wallpapers/tokyonight-nix.png --transition-type fade
       ''}";
       Restart = "on-failure";
       RestartSec = "5s";

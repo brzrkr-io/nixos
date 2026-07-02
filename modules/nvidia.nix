@@ -11,12 +11,8 @@
       "nvidia_drm.fbdev=1"
     ];
     blacklistedKernelModules = [ "nouveau" ];
-    initrd.kernelModules = [
-      "nvidia"
-      "nvidia_modeset"
-      "nvidia_uvm"
-      "nvidia_drm"
-    ];
+    # NVIDIA deliberately NOT in initrd: early KMS only mattered for Plymouth
+    # (removed), and it bloats every initrd by ~200MB on a 512MB ESP.
   };
 
   # ==========================================================================

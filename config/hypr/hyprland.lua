@@ -241,7 +241,7 @@ hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("runelite"))
 -- Wallpaper (useful after rebuilds)
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("systemctl --user restart wallpaper"))
 hl.bind(mainMod .. " + CTRL + W",
-    hl.dsp.exec_cmd("awww img /home/pjanderson/nixos/config/wallpapers/linux_retro.png --transition-type fade"))
+    hl.dsp.exec_cmd("awww img /home/pjanderson/nixos/config/wallpapers/tokyonight-nix.png --transition-type fade"))
 
 
 ----------------------
