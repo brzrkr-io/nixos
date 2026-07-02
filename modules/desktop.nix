@@ -13,6 +13,10 @@
   # ==========================================================================
   # LOGIN (greetd + tuigreet)
   # ==========================================================================
+  # Never restart the login manager on nixos-rebuild switch — that kills the
+  # live Hyprland session mid-use (learned the hard way)
+  systemd.services.greetd.restartIfChanged = false;
+
   services.greetd = {
     enable = true;
     settings = {
