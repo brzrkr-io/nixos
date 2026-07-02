@@ -31,7 +31,7 @@ in
       shfmt
       nixpkgs-fmt
       prettier
-
+      fastfetch
       # Gaming tools
       prismlauncher
       protonup-qt
@@ -65,9 +65,11 @@ in
   # ============================================================================
   # CURSOR, GTK & QT
   # ============================================================================
+  # Future cursors: sharp dark/cyan set; Hyprland uses the Future-Cyan
+  # hyprcursor variant (hyprland.lua sets HYPRCURSOR_THEME)
   home.pointerCursor = {
-    name = "BreezeX-RosePine-Linux";
-    package = pkgs.rose-pine-cursor;
+    name = "Future-cursors";
+    package = pkgs.custom.future-cursors;
     size = 24;
     gtk.enable = true;
     x11.enable = true;

@@ -4,4 +4,5 @@
 
 {
   linear = pkgs.callPackage ./linear.nix { };
+  future-cursors = import ./future-cursors.nix { inherit pkgs; };
 }
