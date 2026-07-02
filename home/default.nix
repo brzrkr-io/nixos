@@ -5,9 +5,10 @@
 let
   dotfiles = "/home/${username}/nixos/config";
 
-  # Runtime theme switcher (script lives in config/themes/theme.sh; fragments
-  # in config/themes/<name>/<dark|light>/). Nix only wraps it onto PATH with
-  # its dependencies — switching themes never needs a rebuild.
+  # Runtime theme switcher. The PATH commands are thin wrappers that exec the
+  # scripts out of the repo (same philosophy as the out-of-store config
+  # symlinks): editing config/themes/*.sh applies immediately, no rebuild.
+  # Nix only pins the dependencies onto PATH.
   themeCli = pkgs.writeShellApplication {
     name = "theme";
     runtimeInputs = with pkgs; [
@@ -23,13 +24,13 @@ let
       neovim
       tmux
     ];
-    text = builtins.readFile ../config/themes/theme.sh;
+    text = ''exec bash "${dotfiles}/themes/theme.sh" "$@"'';
   };
 
   themePicker = pkgs.writeShellApplication {
     name = "theme-picker";
     runtimeInputs = [ themeCli ];
-    text = builtins.readFile ../config/themes/theme-picker.sh;
+    text = ''exec bash "${dotfiles}/themes/theme-picker.sh" "$@"'';
   };
 in
 {

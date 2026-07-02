@@ -148,6 +148,9 @@ ShellRoot {
         implicitWidth: inner.implicitWidth + 22
         Layout.alignment: Qt.AlignVCenter
 
+        // crossfade on theme switch (and a soft hover)
+        Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
+
         RowLayout {
             id: inner
             anchors.centerIn: parent
@@ -169,6 +172,8 @@ ShellRoot {
         font.pixelSize: root.fontSize
         color: root.colFg
         Layout.alignment: Qt.AlignVCenter
+
+        Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
     }
 
     // ── Bar ──────────────────────────────────────────────────────────────
@@ -195,6 +200,8 @@ ShellRoot {
                 anchors.right: parent.right
                 height: 1
                 color: palette.hairline
+
+                Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
             }
 
             RowLayout {
@@ -211,6 +218,8 @@ ShellRoot {
                     implicitHeight: 26
                     implicitWidth: wsRow.implicitWidth + 12
                     Layout.alignment: Qt.AlignVCenter
+
+                    Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                     Row {
                         id: wsRow
@@ -232,6 +241,8 @@ ShellRoot {
                                 radius: 5
                                 color: isActive ? root.colAccent : "transparent"
 
+                                Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
+
                                 Text {
                                     anchors.centerIn: parent
                                     text: index + 1
@@ -241,6 +252,8 @@ ShellRoot {
                                     font.family: root.fontFamily
                                     font.pixelSize: root.fontSize - 1
                                     font.bold: parent.isActive
+
+                                    Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
                                 }
 
                                 MouseArea {
@@ -264,6 +277,8 @@ ShellRoot {
                     Layout.leftMargin: 6
                     Layout.maximumWidth: 600
                     Layout.alignment: Qt.AlignVCenter
+
+                    Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
                 }
 
                 Item { Layout.fillWidth: true } // spacer
