@@ -36,7 +36,8 @@ ShellRoot {
     property int fontSize: 13
 
     // ── State ────────────────────────────────────────────────────────────
-    property string activeWindow: ""
+    // foreign-toplevel protocol: title binding updates on focus AND retitle
+    property string activeWindow: ToplevelManager.activeToplevel?.title ?? ""
     readonly property PwNode sink: Pipewire.defaultAudioSink
     property int volumeLevel: Math.round((sink?.audio?.volume ?? 0) * 100)
     property bool volumeMuted: sink?.audio?.muted ?? false
@@ -49,29 +50,6 @@ ShellRoot {
     property bool powerVisible: false
     property int powerIndex: 0
     property bool volPanelVisible: false
-
-    // ── Focused window title (hyprctl, event-driven + slow fallback) ────
-    Process {
-        id: windowProc
-        command: ["sh", "-c", "hyprctl activewindow -j 2>/dev/null | tr -d '\\n'; echo"]
-        stdout: SplitParser {
-            onRead: data => {
-                try {
-                    root.activeWindow = JSON.parse(data).title ?? ""
-                } catch (e) {
-                    root.activeWindow = ""
-                }
-            }
-        }
-        Component.onCompleted: running = true
-    }
-
-    Connections {
-        target: Hyprland
-        function onRawEvent(event) {
-            windowProc.running = true
-        }
-    }
 
     // ── Volume (Quickshell.Services.Pipewire — event-driven, no polling) ─
     // audio.volume/muted are only valid while the node is bound:
@@ -627,7 +605,7 @@ ShellRoot {
         }
     }
 
-    // ── Network (nmcli polling, 5s) ──────────────────────────────────────
+    // ── Network (event-driven: nmcli monitor triggers the state query) ──
     Process {
         id: netProc
         command: ["sh", "-c",
@@ -640,21 +618,29 @@ ShellRoot {
         Component.onCompleted: running = true
     }
 
-    // ── Timers ───────────────────────────────────────────────────────────
-    Timer { // slow poll: window title fallback (volume is event-driven now)
-        interval: 2000
+    Process { // resident watcher; its startup line doubles as the initial kick
+        id: netMonitor
+        command: ["nmcli", "monitor"]
         running: true
-        repeat: true
-        onTriggered: windowProc.running = true
+        stdout: SplitParser {
+            onRead: () => netDebounce.restart()
+        }
+        onExited: netRespawn.restart() // NM restarted — reattach, don't spin
     }
 
-    Timer { // network
-        interval: 5000
-        running: true
-        repeat: true
+    Timer { // collapse event bursts into one query
+        id: netDebounce
+        interval: 300
         onTriggered: netProc.running = true
     }
 
+    Timer {
+        id: netRespawn
+        interval: 2000
+        onTriggered: netMonitor.running = true
+    }
+
+    // ── Timers ───────────────────────────────────────────────────────────
     Timer { // clock
         interval: 1000
         running: true
