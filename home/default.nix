@@ -372,6 +372,19 @@ in
     enableZshIntegration = true;
   };
 
+  # Ctrl+R only (up-arrow keeps plain zsh history — less muscle-memory churn).
+  # Local database only; `atuin import auto` once to pull in existing history.
+  programs.atuin = {
+    enable = true;
+    enableZshIntegration = true;
+    flags = [ "--disable-up-arrow" ];
+    settings = {
+      auto_sync = false;
+      update_check = false;
+      style = "compact";
+    };
+  };
+
   programs.direnv = {
     enable = true;
     enableZshIntegration = true;
