@@ -98,6 +98,9 @@ in
       VISUAL = "nvim";
       BROWSER = "firefox";
       TERMINAL = "ghostty";
+      # man pages through bat: syntax highlighting + theme
+      MANPAGER = "sh -c 'col -bx | bat -l man -p'";
+      MANROFFOPT = "-c"; # stop man-db emitting SGR escapes that garble bat
     };
 
     # ==========================================================================
