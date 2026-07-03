@@ -130,8 +130,6 @@ apply() { # [nowall]
 
   # regenerate configs for apps that can't follow the symlink flip
   cp "$v/quickshell.qml" "$repo/config/quickshell/Colors.qml"
-  cat "$repo/config/starship/starship.base.toml" "$v/starship.toml" \
-    >"$repo/config/starship/starship.toml"
   cat "$v/walker.css" "$repo/config/walker/themes/current/style.base.css" \
     >"$repo/config/walker/themes/current/style.css"
 
