@@ -42,6 +42,7 @@ ShellRoot {
     property string netStatus: "offline" // "ethernet" | "wifi" | "offline"
     property var now: new Date()
     property bool clockShowDate: false
+    property bool dnd: false // session-only by design — no state file
 
     // ── Focused window title (hyprctl, event-driven + slow fallback) ────
     Process {
@@ -190,7 +191,9 @@ ShellRoot {
         id: notifServer
         keepOnReload: false
         bodySupported: true
-        onNotification: n => n.tracked = true
+        // untracked notifications are discarded; criticals punch through DND
+        // (dunst-like — a bell that eats "battery 2%" is a footgun)
+        onNotification: n => n.tracked = !root.dnd || n.urgency === NotificationUrgency.Critical
     }
 
     PanelWindow {
@@ -571,6 +574,16 @@ ShellRoot {
                                 }
                             }
                         }
+                    }
+                }
+
+                // Do-not-disturb: click toggles; criticals still get through
+                Pill {
+                    onClicked: root.dnd = !root.dnd
+
+                    PillText {
+                        text: root.dnd ? "󰂛" : "󰂚"
+                        color: root.dnd ? root.colDim : root.colFg
                     }
                 }
 
