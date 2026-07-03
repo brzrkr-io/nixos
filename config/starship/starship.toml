@@ -1,111 +1,87 @@
-# Starship Configuration (base — palette appended by the `theme` CLI into starship.toml)
-# Pill style: rounded capsule segments matching the bar's aesthetic.
-# Alternate preset: presets/devops-two-line.toml (cp over this file + `reload`)
+# Starship Configuration — official tokyo-night preset, lightly adapted:
+# php/bun -> python, + nix_shell flake, + PROD kube-context alarm.
+# Other candidates live in presets/ (cp over this file + `reload`).
+# NOTE: colors are the preset's own hexes (chosen by eye); the theme CLI
+# appends [palettes.theme] below but this prompt intentionally doesn't use it.
 
 "$schema" = 'https://starship.rs/config-schema.json'
 
-palette = "theme"
-
 format = """
-[](blue)\
-[$directory](fg:bg bg:blue)\
-[](fg:blue bg:bg_highlight)\
+[░▒▓](#a3aed2)\
+[  ](bg:#a3aed2 fg:#090c0c)\
+[](bg:#769ff0 fg:#a3aed2)\
+$directory\
+[](fg:#769ff0 bg:#394260)\
 $git_branch\
 $git_status\
-[](fg:bg_highlight)\
-$kubernetes\
-$aws\
+[](fg:#394260 bg:#212736)\
+$nodejs\
+$rust\
+$golang\
+$python\
 $nix_shell\
-$cmd_duration\
-$character"""
-
-right_format = """[](comment)[$time](fg:bg bg:comment)[](comment)"""
-
-[line_break]
-disabled = true
+[](fg:#212736 bg:#1d2230)\
+$time\
+[ ](fg:#1d2230)\
+\n$character"""
 
 [directory]
-style = "fg:bg bg:blue"
+style = "fg:#e3e5e5 bg:#769ff0"
 format = "[ $path ]($style)"
-truncation_length = 2
-truncate_to_repo = true
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
 
 [git_branch]
-symbol = " "
-style = "fg:magenta bg:bg_highlight"
-format = "[ $symbol$branch]($style)"
+symbol = ""
+style = "bg:#394260"
+format = '[[ $symbol $branch ](fg:#769ff0 bg:#394260)]($style)'
 
 [git_status]
-style = "fg:red bg:bg_highlight"
-format = "[( $all_status$ahead_behind)]($style)[ ](bg:bg_highlight)"
-conflicted = "!"
-ahead = "⇡"
-behind = "⇣"
-diverged = "⇕"
-up_to_date = ""
-untracked = "?"
-stashed = ""
-modified = "*"
-staged = "+"
-renamed = ""
-deleted = "✘"
+style = "bg:#394260"
+format = '[[($all_status$ahead_behind )](fg:#769ff0 bg:#394260)]($style)'
 
-# k8s pill only when KUBE context is prod-flavored OR namespace is set —
-# quiet by default, loud when it matters
-[kubernetes]
-disabled = false
-symbol = "󱃾"
-style = "fg:blue"
-format = " [$symbol $context]($style)"
-detect_env_vars = ["KUBECONFIG"]
-[[kubernetes.contexts]]
-context_pattern = ".*prod.*"
-style = "bold fg:bg bg:red"
-context_alias = " PROD:$context "
+[nodejs]
+symbol = ""
+style = "bg:#212736"
+format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
 
-[aws]
-symbol = "󰸏"
-style = "fg:orange"
-format = " [$symbol $profile]($style)"
-force_display = false
+[rust]
+symbol = ""
+style = "bg:#212736"
+format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
+
+[golang]
+symbol = ""
+style = "bg:#212736"
+format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
+
+[python]
+symbol = ""
+style = "bg:#212736"
+format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
 
 [nix_shell]
 symbol = "󱄅"
-style = "fg:blue1"
-format = " [$symbol]($style)"
+style = "bg:#212736"
+format = '[[ $symbol ](fg:#769ff0 bg:#212736)]($style)'
 impure_msg = ""
 pure_msg = ""
 unknown_msg = ""
 
-[cmd_duration]
-min_time = 3000
-style = "fg:yellow"
-format = " [$duration]($style)"
-
-[character]
-success_symbol = " [❯](bold green)"
-error_symbol = " [❯](bold red)"
-vimcmd_symbol = " [❮](bold blue)"
-
 [time]
 disabled = false
-time_format = "%H:%M"
+time_format = "%R"
+style = "bg:#1d2230"
+format = '[[  $time ](fg:#a0a9cb bg:#1d2230)]($style)'
 
-# tokyonight dark (appended to starship.base.toml by `theme apply`)
-[palettes.theme]
-bg = "#1a1b26"
-bg_dark = "#16161e"
-bg_highlight = "#292e42"
-terminal_black = "#414868"
-fg = "#c0caf5"
-fg_dark = "#a9b1d6"
-comment = "#565f89"
-blue = "#7aa2f7"
-cyan = "#7dcfff"
-blue1 = "#2ac3de"
-magenta = "#bb9af7"
-orange = "#ff9e64"
-yellow = "#e0af68"
-green = "#9ece6a"
-teal = "#73daca"
-red = "#f7768e"
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold blue)"
