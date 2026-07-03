@@ -48,6 +48,7 @@ ShellRoot {
     property var calMonth: new Date() // month the calendar is showing
     property bool powerVisible: false
     property int powerIndex: 0
+    property bool volPanelVisible: false
 
     // ── Focused window title (hyprctl, event-driven + slow fallback) ────
     Process {
@@ -112,6 +113,7 @@ ShellRoot {
         target: "power" // SUPER+Backspace → `qs ipc call power toggle` (hyprland.lua)
         function toggle(): void {
             root.calVisible = false // one popup (and focus grab) at a time
+            root.volPanelVisible = false
             root.powerIndex = 0
             root.powerVisible = !root.powerVisible
         }
@@ -378,6 +380,142 @@ ShellRoot {
                                 font { family: root.fontFamily; pixelSize: root.fontSize - 1 }
                                 font.bold: parent.today
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Volume panel (volume pill right-click) ───────────────────────────
+    PanelWindow {
+        id: volWin
+        visible: root.volPanelVisible
+        anchors {
+            top: true
+            right: true
+        }
+        margins {
+            top: 12
+            right: 12
+        }
+        exclusiveZone: 0
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.namespace: "qs-volume"
+        implicitWidth: 280
+        implicitHeight: volCol.implicitHeight + 32
+        color: "transparent"
+
+        // registry names are valid unbound; bind audio.* only while open
+        property var sinks: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream)
+        PwObjectTracker { objects: root.volPanelVisible ? volWin.sinks : [] }
+
+        HyprlandFocusGrab {
+            windows: [volWin]
+            active: root.volPanelVisible
+            onCleared: root.volPanelVisible = false
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 10
+            color: root.colBar
+            border.width: 2
+            border.color: root.colPill
+
+            Column {
+                id: volCol
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                    margins: 16
+                }
+                spacing: 10
+
+                RowLayout { // header: mute toggle + percent
+                    width: parent.width
+
+                    PillText {
+                        text: root.volumeMuted ? "󰝟" : "󰕾"
+                        color: root.volumeMuted ? root.colDim : root.colCyan
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: if (root.sink) root.sink.audio.muted = !root.sink.audio.muted
+                        }
+                    }
+                    Item { Layout.fillWidth: true }
+                    PillText {
+                        text: root.volumeMuted ? "muted" : root.volumeLevel + "%"
+                    }
+                }
+
+                Item { // slider: OSD track visual, interactive (20px hit target)
+                    width: parent.width
+                    height: 20
+
+                    Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: parent.width
+                        height: 4
+                        radius: 2
+                        color: root.colPill
+
+                        Rectangle { // no width Behavior — dragging must track 1:1
+                            width: parent.width * Math.min(root.volumeLevel, 100) / 100
+                            height: 4
+                            radius: 2
+                            color: root.volumeMuted ? root.colDim : root.colCyan
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        function set(x) {
+                            if (root.sink) root.sink.audio.volume = Math.max(0, Math.min(1, x / width))
+                        }
+                        onPressed: mouse => set(mouse.x)
+                        onPositionChanged: mouse => { if (containsPress) set(mouse.x) }
+                    }
+                }
+
+                Rectangle { // separator (hidden if pipewire reports no sinks)
+                    visible: volWin.sinks.length > 0
+                    width: parent.width
+                    height: 1
+                    color: root.colPill
+                }
+
+                Repeater { // output devices; click switches the default sink
+                    model: volWin.sinks
+
+                    Rectangle {
+                        required property var modelData
+                        property bool current: modelData === Pipewire.defaultAudioSink
+
+                        width: volCol.width
+                        height: 28
+                        radius: 7
+                        color: rowMouse.containsMouse ? root.colPillHover : "transparent"
+
+                        Text {
+                            anchors {
+                                left: parent.left
+                                right: parent.right
+                                verticalCenter: parent.verticalCenter
+                                leftMargin: 10
+                                rightMargin: 10
+                            }
+                            text: parent.modelData.nickname || parent.modelData.description || parent.modelData.name
+                            color: parent.current ? root.colAccent : root.colFg
+                            font { family: root.fontFamily; pixelSize: root.fontSize - 1 }
+                            elide: Text.ElideRight
+                        }
+                        MouseArea {
+                            id: rowMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onClicked: Pipewire.preferredDefaultAudioSink = parent.modelData
                         }
                     }
                 }
@@ -694,11 +832,16 @@ ShellRoot {
                     }
                 }
 
-                // Volume: click = mute toggle, right-click = mixer, scroll = +/- 2%
+                // Volume: click = mute toggle, right-click = panel, scroll = +/- 2%
                 Pill {
                     onClicked: mouse => {
-                        if (mouse.button === Qt.RightButton) Quickshell.execDetached(["pavucontrol"])
-                        else if (root.sink) root.sink.audio.muted = !root.sink.audio.muted
+                        if (mouse.button === Qt.RightButton) {
+                            root.calVisible = false   // one popup at a time
+                            root.powerVisible = false
+                            root.volPanelVisible = !root.volPanelVisible
+                        } else if (root.sink) {
+                            root.sink.audio.muted = !root.sink.audio.muted
+                        }
                     }
                     onWheeled: wheel => {
                         if (root.sink) root.sink.audio.volume = Math.max(0, Math.min(1,
@@ -781,6 +924,7 @@ ShellRoot {
                         if (mouse.button === Qt.RightButton) {
                             root.calMonth = new Date() // reopen on current month
                             root.powerVisible = false  // one popup at a time
+                            root.volPanelVisible = false
                             root.calVisible = !root.calVisible
                         } else {
                             root.clockShowDate = !root.clockShowDate
