@@ -123,6 +123,16 @@ in
         "${pkgs.hyprlandPlugins.hyprspace}/lib/libhyprspace.so";
       ".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/starship/starship.toml";
       ".tmux.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux/tmux.conf";
+
+      # btop: NOT a repo symlink on purpose — btop rewrites its config on every
+      # exit, which would constantly dirty the repo. Read-only store file; the
+      # theme follows the same current-theme symlink as everything else
+      # (config/themes/*/btop.theme), picked up on next btop launch.
+      ".config/btop/btop.conf".text = ''
+        color_theme = "/home/${username}/.config/theme/current/btop.theme"
+        theme_background = False
+        vim_keys = True
+      '';
     };
   };
 
