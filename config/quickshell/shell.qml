@@ -581,7 +581,7 @@ ShellRoot {
             id: pillMouse
             anchors.fill: parent
             hoverEnabled: true
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
             onClicked: mouse => pill.clicked(mouse)
             onWheel: wheel => pill.wheeled(wheel)
         }
@@ -702,7 +702,11 @@ ShellRoot {
                     property bool playing: player?.playbackState === MprisPlaybackState.Playing
 
                     visible: player !== null && (player.trackTitle ?? "") !== ""
-                    onClicked: if (player?.canTogglePlaying) player.togglePlaying()
+                    // left = play/pause, middle = raise the player's window
+                    onClicked: mouse => {
+                        if (mouse.button === Qt.MiddleButton && player?.canRaise) player.raise()
+                        else if (player?.canTogglePlaying) player.togglePlaying()
+                    }
                     onWheeled: wheel => {
                         if (!player) return
                         if (wheel.angleDelta.y > 0 && player.canGoNext) player.next()
@@ -724,9 +728,12 @@ ShellRoot {
                     }
                 }
 
-                // Volume: click = mute toggle, scroll = +/- 2%
+                // Volume: click = mute toggle, right-click = mixer, scroll = +/- 2%
                 Pill {
-                    onClicked: root.volAction(["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+                    onClicked: mouse => {
+                        if (mouse.button === Qt.RightButton) Quickshell.execDetached(["pavucontrol"])
+                        else root.volAction(["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+                    }
                     onWheeled: wheel => root.volAction(
                         ["set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@",
                          wheel.angleDelta.y > 0 ? "2%+" : "2%-"])
@@ -741,8 +748,10 @@ ShellRoot {
                     }
                 }
 
-                // Network
+                // Network: click = connection editor
                 Pill {
+                    onClicked: Quickshell.execDetached(["nm-connection-editor"])
+
                     PillText {
                         text: root.netStatus === "ethernet" ? "󰈀"
                             : root.netStatus === "wifi" ? "󰖩"
