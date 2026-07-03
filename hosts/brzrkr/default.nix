@@ -123,6 +123,11 @@
       enableSSHSupport = true;
     };
 
+    # Run non-nix binaries (terraform providers, vendor CLIs, go/cargo installs
+    # that link libc) without patchelf — nix-ld provides the missing dynamic
+    # loader at the standard FHS path
+    nix-ld.enable = true;
+
     # Nicer rebuild UX: `nh os switch` = nixos-rebuild with clean build output
     # (nix-output-monitor) + a package-level diff of what changed (nvd), both
     # bundled with nh. The nrs/nrb/nrt aliases point here (home/default.nix).
