@@ -10,6 +10,7 @@ import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
 import Quickshell.Services.Mpris
 import Quickshell.Services.Notifications
+import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Layouts
 
@@ -36,8 +37,9 @@ ShellRoot {
 
     // ── State ────────────────────────────────────────────────────────────
     property string activeWindow: ""
-    property int volumeLevel: 0
-    property bool volumeMuted: false
+    readonly property PwNode sink: Pipewire.defaultAudioSink
+    property int volumeLevel: Math.round((sink?.audio?.volume ?? 0) * 100)
+    property bool volumeMuted: sink?.audio?.muted ?? false
     property string netStatus: "offline" // "ethernet" | "wifi" | "offline"
     property var now: new Date()
     property bool clockShowDate: false
@@ -70,42 +72,13 @@ ShellRoot {
         }
     }
 
-    // ── Volume (wpctl polling — tony-btw's proven pattern) ──────────────
-    Process {
-        id: volProc
-        command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
-        stdout: SplitParser {
-            onRead: data => {
-                var match = data.match(/Volume:\s*([\d.]+)/)
-                if (match)
-                    root.volumeLevel = Math.round(parseFloat(match[1]) * 100)
-                root.volumeMuted = data.indexOf("MUTED") !== -1
-            }
-        }
-        Component.onCompleted: running = true
-    }
-
-    Process {
-        id: volActionProc
-    }
-
-    function volAction(args) {
-        // restart so rapid actions (scroll steps) aren't dropped on a running process
-        volActionProc.running = false
-        volActionProc.command = ["wpctl"].concat(args)
-        volActionProc.running = true
-        volRefresh.restart()
-    }
-
-    Timer {
-        id: volRefresh
-        interval: 150
-        onTriggered: volProc.running = true
-    }
+    // ── Volume (Quickshell.Services.Pipewire — event-driven, no polling) ─
+    // audio.volume/muted are only valid while the node is bound:
+    PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
 
     // ── Volume OSD (replaces swayosd) ────────────────────────────────────
     // Shown ONLY by the media-key IPC calls below (hyprland.lua binds run
-    // `qs ipc call osd ...`) — never by the startup/drift poll.
+    // `qs ipc call osd ...`) — never by external volume changes.
     property bool osdVisible: false
 
     function showOsd() {
@@ -122,15 +95,15 @@ ShellRoot {
     IpcHandler {
         target: "osd"
         function volumeUp(): void {
-            root.volAction(["set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@", "5%+"])
+            if (root.sink) root.sink.audio.volume = Math.min(1, root.sink.audio.volume + 0.05)
             root.showOsd()
         }
         function volumeDown(): void {
-            root.volAction(["set-volume", "@DEFAULT_AUDIO_SINK@", "5%-"])
+            if (root.sink) root.sink.audio.volume = Math.max(0, root.sink.audio.volume - 0.05)
             root.showOsd()
         }
         function muteToggle(): void {
-            root.volAction(["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+            if (root.sink) root.sink.audio.muted = !root.sink.audio.muted
             root.showOsd()
         }
     }
@@ -184,7 +157,7 @@ ShellRoot {
                         height: 4
                         radius: 2
                         color: root.volumeMuted ? root.colDim : root.colCyan
-                        // 150ms matches the volRefresh cadence (400ms would lag key-repeat)
+                        // pipewire updates are instant; 150ms just smooths key-repeat steps
                         Behavior on width { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
                     }
                 }
@@ -530,14 +503,11 @@ ShellRoot {
     }
 
     // ── Timers ───────────────────────────────────────────────────────────
-    Timer { // slow poll: volume drift + window title fallback
+    Timer { // slow poll: window title fallback (volume is event-driven now)
         interval: 2000
         running: true
         repeat: true
-        onTriggered: {
-            volProc.running = true
-            windowProc.running = true
-        }
+        onTriggered: windowProc.running = true
     }
 
     Timer { // network
@@ -728,11 +698,12 @@ ShellRoot {
                 Pill {
                     onClicked: mouse => {
                         if (mouse.button === Qt.RightButton) Quickshell.execDetached(["pavucontrol"])
-                        else root.volAction(["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+                        else if (root.sink) root.sink.audio.muted = !root.sink.audio.muted
                     }
-                    onWheeled: wheel => root.volAction(
-                        ["set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@",
-                         wheel.angleDelta.y > 0 ? "2%+" : "2%-"])
+                    onWheeled: wheel => {
+                        if (root.sink) root.sink.audio.volume = Math.max(0, Math.min(1,
+                            root.sink.audio.volume + (wheel.angleDelta.y > 0 ? 0.02 : -0.02)))
+                    }
 
                     PillText {
                         text: root.volumeMuted ? "󰝟" : root.volumeLevel === 0 ? "󰕿" : root.volumeLevel < 50 ? "󰖀" : "󰕾"
