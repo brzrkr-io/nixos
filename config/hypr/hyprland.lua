@@ -111,7 +111,10 @@ hl.config({
 
     cursor = {
         inactive_timeout    = 30,
-        no_hardware_cursors = true,
+        -- Hardware cursors work on NVIDIA 555+ (we're on 595): the old
+        -- no_hardware_cursors workaround forced a full composite on every
+        -- mouse move, making scrolling/pointer motion feel laggy at 4K
+        no_hardware_cursors = false,
     },
 
     decoration = {
@@ -132,6 +135,9 @@ hl.config({
             size     = 6,
             passes   = 2,
             vibrancy = 0.2,
+            -- xray: blur samples the wallpaper only, so scrolling text in a
+            -- transparent terminal no longer recomputes blur over 4K each frame
+            xray     = true,
         },
     },
 
