@@ -167,8 +167,11 @@ apply() { # [nowall]
     fi
   done
   # restart resident walker so it re-reads the regenerated CSS — routed through
-  # hyprctl so it works even where this script can't see session processes
-  hyprctl dispatch exec 'sh -c "pkill -x walker; sleep 0.3; exec walker --gapplication-service"' >/dev/null 2>&1 || true
+  # hyprctl so it works even where this script can't see session processes.
+  # NOTE: `hyprctl dispatch` parses as Lua on 0.55+ (use eval), and pkill must
+  # match the comm ".walker-wrapped" (nix wrapper) — `pkill -x walker` is a
+  # silent no-op and full-cmdline -f patterns match their own wrapper shell.
+  hyprctl eval 'hl.exec_cmd([[sh -c "pkill -x .walker-wrapped; sleep 0.3; exec walker --gapplication-service"]])' >/dev/null 2>&1 || true
 
   # stylix GTK palette + Spotify are baked at build time from nix-default.nix
   nd="$(toml_get "$themes_dir/nix-default.nix" theme)"

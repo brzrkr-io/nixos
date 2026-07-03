@@ -36,4 +36,6 @@ fragments), never just generated output.
   write files inside them (use .local/share/... instead)
 - mason doesn't work on NixOS: nvim/helix LSP binaries come from
   modules/desktop.nix; add both places when adding a language
+- `pkill -x <app>` misses nix-wrapped binaries — comm is `.<app>-wrapped`
+  (bit walker; also: resident walker's app index goes stale after nrs)
 - ESP is 512MB: NVIDIA stays OUT of initrd; keep generations pruned
