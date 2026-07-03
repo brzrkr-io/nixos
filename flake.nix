@@ -31,6 +31,12 @@
       url = "github:xremap/nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Secrets: encrypted in-repo with sops/age, decrypted to /run/secrets at activation
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -71,6 +77,10 @@
           inputs.xremap-flake.nixosModules.default
           ./modules/mac-keys.nix
 
+          # Secrets (sops/age; see .sops.yaml + modules/secrets.nix)
+          inputs.sops-nix.nixosModules.sops
+          ./modules/secrets.nix
+
           # Home Manager
           home-manager.nixosModules.home-manager
           {
@@ -86,7 +96,7 @@
 
       # Development shell for this flake
       devShells.${system}.default = pkgs.mkShell {
-        packages = with pkgs; [ nil nixpkgs-fmt ];
+        packages = with pkgs; [ nil nixpkgs-fmt sops age ssh-to-age ];
       };
     };
 }
