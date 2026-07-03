@@ -1,4 +1,4 @@
-// Quickshell top bar — Tokyo Night, single file.
+// Quickshell top bar — themed via Colors.qml, single file.
 // Left:  workspaces (persistent 1-5 + occupied), focused window title
 // Right: volume, network, tray, clock
 // NOTE: launch with QT_SCALE_FACTOR=1 (hyprland.lua does this) — the global
