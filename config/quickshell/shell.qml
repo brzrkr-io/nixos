@@ -1,8 +1,7 @@
-// Quickshell top bar — themed via Colors.qml, single file.
-// Left:  workspaces (persistent 1-5 + occupied), focused window title
-// Right: volume, network, tray, clock
-// NOTE: launch with QT_SCALE_FACTOR=1 (hyprland.lua does this) — the global
-// QT_SCALE_FACTOR=0.9 session hack otherwise overrides the monitor's 2x scale.
+// Quickshell — the whole shell in one file, themed via Colors.qml.
+// Bar (workspaces, title | media, volume, network, tray, DND, clock),
+// notification daemon, volume OSD, calendar popup, power menu.
+// IPC: `qs ipc call osd volumeUp|volumeDown|muteToggle`, `qs ipc call power toggle`
 
 import Quickshell
 import Quickshell.Io
