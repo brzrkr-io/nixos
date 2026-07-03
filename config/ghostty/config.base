@@ -9,11 +9,15 @@ font-thicken = false
 adjust-cell-height = 10%
 
 # Window
-window-padding-x = 8
-window-padding-y = 8
-background-opacity = 0.95
+window-padding-x = 10
+window-padding-y = 10
+window-padding-balance = true
+background-opacity = 0.88
 window-decoration = false
 window-save-state = always
+
+# Splits: dim whatever isn't focused
+unfocused-split-opacity = 0.55
 
 # Behavior
 copy-on-select = clipboard
@@ -21,9 +25,9 @@ confirm-close-surface = false
 mouse-hide-while-typing = true
 focus-follows-mouse = false
 
-# Shell integration
+# Shell integration (no-cursor: keep the block cursor at the prompt too)
 shell-integration = zsh
-shell-integration-features = cursor,sudo,title
+shell-integration-features = no-cursor,sudo,title
 
 # Cursor
 cursor-style = block

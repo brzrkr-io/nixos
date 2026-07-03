@@ -4,6 +4,11 @@
 config-file = config.base
 config-file = ?/home/pjanderson/.config/theme/current/ghostty.conf
 
+# Cursor tracks the cell it sits on (after the theme include so it beats the
+# theme's hardcoded cursor-color, whatever theme is active)
+cursor-color = cell-foreground
+cursor-text = cell-background
+
 # Mac-style copy/paste (xremap skips terminals by design)
 keybind = super+c=copy_to_clipboard
 keybind = super+v=paste_from_clipboard
