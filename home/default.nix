@@ -298,10 +298,12 @@ in
       tfp = "terraform plan";
       tfa = "terraform apply";
 
-      # NixOS
-      nrs = "sudo nixos-rebuild switch --flake ~/nixos#brzrkr";
-      nrb = "sudo nixos-rebuild boot --flake ~/nixos#brzrkr";
-      nrt = "sudo nixos-rebuild test --flake ~/nixos#brzrkr";
+      # NixOS (nh wraps nixos-rebuild: nom build output + nvd generation diff;
+      # flake path comes from programs.nh.flake. Fallback if nh ever breaks:
+      # sudo nixos-rebuild switch --flake ~/nixos#brzrkr)
+      nrs = "nh os switch";
+      nrb = "nh os boot";
+      nrt = "nh os test";
 
       # Navigation
       ".." = "cd ..";
