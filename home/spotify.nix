@@ -8,12 +8,27 @@ let
   # Follows the build-time default (runtime `theme` switches everything else;
   # Spotify converges on the next rebuild)
   themeDefault = import ../config/themes/nix-default.nix;
+
+  # theme/polarity -> spicetify theme + color scheme. Scheme names must match
+  # the [sections] in each theme's color.ini (verified against the pinned rev).
+  spice = {
+    tokyonight = {
+      theme = spicePkgs.themes.tokyoNight;
+      colorScheme = { dark = "Night"; light = "Light"; }.${themeDefault.polarity};
+    };
+    gruvbox = {
+      # no dedicated gruvbox spicetify theme; the "text" theme ships a Gruvbox
+      # scheme (dark only — light polarity gets it too, least-bad option)
+      theme = spicePkgs.themes.text;
+      colorScheme = "Gruvbox";
+    };
+  }.${themeDefault.theme};
 in
 {
   imports = [ inputs.spicetify-nix.homeManagerModules.default ];
 
   programs.spicetify = {
     enable = true;
-    theme = spicePkgs.themes.${themeDefault.spicetify};
+    inherit (spice) theme colorScheme;
   };
 }
