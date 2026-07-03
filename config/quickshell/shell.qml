@@ -43,6 +43,8 @@ ShellRoot {
     property var now: new Date()
     property bool clockShowDate: false
     property bool dnd: false // session-only by design — no state file
+    property bool calVisible: false
+    property var calMonth: new Date() // month the calendar is showing
 
     // ── Focused window title (hyprctl, event-driven + slow fallback) ────
     Process {
@@ -295,6 +297,104 @@ ShellRoot {
                                 notifServer.trackedNotifications.values.slice().forEach(n => n.dismiss())
                             else
                                 card.modelData.dismiss()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Calendar popup (clock right-click) ───────────────────────────────
+    PanelWindow {
+        id: calWin
+        visible: root.calVisible
+        anchors {
+            top: true
+            right: true
+        }
+        margins {
+            top: 12
+            right: 12
+        }
+        exclusiveZone: 0
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.namespace: "qs-calendar"
+        implicitWidth: 7 * 26 + 32
+        implicitHeight: calCol.implicitHeight + 24
+        color: "transparent"
+
+        HyprlandFocusGrab {
+            windows: [calWin]
+            active: root.calVisible
+            onCleared: root.calVisible = false // click outside = dismiss
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 10
+            color: root.colBar
+            border.width: 2
+            border.color: root.colPill
+
+            MouseArea { // wheel anywhere on the popup pages months
+                anchors.fill: parent
+                onWheel: wheel => root.calMonth = new Date(root.calMonth.getFullYear(),
+                    root.calMonth.getMonth() + (wheel.angleDelta.y > 0 ? -1 : 1), 1)
+            }
+
+            Column {
+                id: calCol
+                anchors.centerIn: parent
+                spacing: 4
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: Qt.formatDate(root.calMonth, "MMMM yyyy")
+                    color: root.colFg
+                    font { family: root.fontFamily; pixelSize: root.fontSize; bold: true }
+                }
+                Row {
+                    Repeater {
+                        model: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+                        Text {
+                            required property string modelData
+                            width: 26
+                            horizontalAlignment: Text.AlignHCenter
+                            text: modelData
+                            color: root.colDim
+                            font { family: root.fontFamily; pixelSize: root.fontSize - 1 }
+                        }
+                    }
+                }
+                Grid {
+                    columns: 7
+                    Repeater {
+                        model: 42
+
+                        Rectangle {
+                            required property int index
+                            // Monday-first: JS Sunday=0 → offset (day+6)%7
+                            property var d: {
+                                const f = new Date(root.calMonth.getFullYear(), root.calMonth.getMonth(), 1)
+                                return new Date(f.getFullYear(), f.getMonth(), 1 - ((f.getDay() + 6) % 7) + index)
+                            }
+                            // fresh on every open (calMonth reassigned) — no per-second binding
+                            property bool today: d.toDateString() === new Date().toDateString()
+
+                            width: 26
+                            height: 26
+                            radius: 5
+                            color: today ? root.colAccent : "transparent"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: parent.d.getDate()
+                                color: parent.today ? root.colBar
+                                     : parent.d.getMonth() === root.calMonth.getMonth() ? root.colFg
+                                     : root.colDim
+                                font { family: root.fontFamily; pixelSize: root.fontSize - 1 }
+                                font.bold: parent.today
+                            }
                         }
                     }
                 }
@@ -587,9 +687,16 @@ ShellRoot {
                     }
                 }
 
-                // Clock: click toggles date
+                // Clock: left-click toggles date, right-click opens the calendar
                 Pill {
-                    onClicked: root.clockShowDate = !root.clockShowDate
+                    onClicked: mouse => {
+                        if (mouse.button === Qt.RightButton) {
+                            root.calMonth = new Date() // reopen on current month
+                            root.calVisible = !root.calVisible
+                        } else {
+                            root.clockShowDate = !root.clockShowDate
+                        }
+                    }
 
                     PillText {
                         text: "󰥔"
