@@ -117,10 +117,11 @@
     hyprlock
     hypridle
 
-    # Screenshots
+    # Screenshots (+ tesseract for the SUPER+SHIFT+T screen-OCR bind)
     grim
     slurp
     swappy
+    tesseract
 
     # Clipboard
     wl-clipboard

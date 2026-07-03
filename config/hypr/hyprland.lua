@@ -224,6 +224,14 @@ hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"), { desc = "Toggle split 
 hl.bind("Print", hl.dsp.exec_cmd("grim -g \"$(slurp -d)\" - | swappy -f -"), { desc = "Screenshot region" })
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim - | swappy -f -"), { desc = "Screenshot full screen" })
 
+-- Screen OCR: select a region, text lands in the clipboard (tesseract comes
+-- from modules/desktop.nix)
+hl.bind(mainMod .. " + SHIFT + T",
+    hl.dsp.exec_cmd(
+        "grim -g \"$(slurp -d)\" - | tesseract stdin stdout 2>/dev/null | wl-copy" ..
+        " && notify-send -t 3000 'OCR' \"$(wl-paste | head -c 200)\""),
+    { desc = "OCR region to clipboard" })
+
 -- Focus (vim keys + arrows)
 hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }), { desc = "Focus left" })
 hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "down" }), { desc = "Focus down" })
