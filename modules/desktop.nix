@@ -184,6 +184,7 @@
     yq # YAML
     ncdu # disk usage
     duf # df
+    tealdeer # tldr — community cheatsheets for CLI tools
 
     # Languages & build tools
     go
