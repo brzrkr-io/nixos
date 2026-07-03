@@ -384,6 +384,7 @@ ShellRoot {
         model: Quickshell.screens
 
         PanelWindow {
+            id: barWindow // per-screen (Variants delegate scope) — tray menus anchor to it
             property var modelData
             screen: modelData
 
@@ -554,12 +555,19 @@ ShellRoot {
 
                             MouseArea {
                                 anchors.fill: parent
-                                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                                 onClicked: mouse => {
-                                    if (mouse.button === Qt.LeftButton)
+                                    // right-click = the real context menu (nm-applet etc. live
+                                    // there — secondaryActivate is a no-op for most tray apps);
+                                    // onlyMenu items get it on left-click too
+                                    if ((mouse.button === Qt.RightButton || modelData.onlyMenu) && modelData.hasMenu) {
+                                        const p = mapToItem(null, 0, height)
+                                        modelData.display(barWindow, p.x, p.y)
+                                    } else if (mouse.button === Qt.LeftButton) {
                                         modelData.activate()
-                                    else
+                                    } else {
                                         modelData.secondaryActivate()
+                                    }
                                 }
                             }
                         }
