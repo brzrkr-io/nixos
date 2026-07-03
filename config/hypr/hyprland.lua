@@ -329,8 +329,8 @@ hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("systemctl --user restart wal
 hl.bind(mainMod .. " + CTRL + W", hl.dsp.exec_cmd("theme wallpaper"),
     { desc = "Reset wallpaper (current theme)" })
 
--- Power menu (Omarchy-style)
-hl.bind(mainMod .. " + BackSpace", hl.dsp.exec_cmd("~/.config/hypr/scripts/power-menu.sh"),
+-- Power menu (quickshell overlay — shell.qml IpcHandler)
+hl.bind(mainMod .. " + BackSpace", hl.dsp.exec_cmd("qs ipc call power toggle"),
     { desc = "Power menu (lock/logout/reboot/shutdown)" })
 
 -- Cheatsheet: this very list

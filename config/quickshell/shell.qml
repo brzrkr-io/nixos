@@ -45,6 +45,8 @@ ShellRoot {
     property bool dnd: false // session-only by design — no state file
     property bool calVisible: false
     property var calMonth: new Date() // month the calendar is showing
+    property bool powerVisible: false
+    property int powerIndex: 0
 
     // ── Focused window title (hyprctl, event-driven + slow fallback) ────
     Process {
@@ -131,6 +133,15 @@ ShellRoot {
         function muteToggle(): void {
             root.volAction(["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
             root.showOsd()
+        }
+    }
+
+    IpcHandler {
+        target: "power" // SUPER+Backspace → `qs ipc call power toggle` (hyprland.lua)
+        function toggle(): void {
+            root.calVisible = false // one popup (and focus grab) at a time
+            root.powerIndex = 0
+            root.powerVisible = !root.powerVisible
         }
     }
 
@@ -395,6 +406,110 @@ ShellRoot {
                                 font { family: root.fontFamily; pixelSize: root.fontSize - 1 }
                                 font.bold: parent.today
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Power menu (replaces power-menu.sh; SUPER+Backspace via IPC) ─────
+    PanelWindow {
+        id: powerWin
+        visible: root.powerVisible
+        // no anchors → compositor centers the layer surface
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.namespace: "qs-power"
+        WlrLayershell.keyboardFocus: root.powerVisible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+        implicitWidth: 220
+        implicitHeight: powerCol.implicitHeight + 24
+        color: "transparent"
+
+        property var actions: [
+            { icon: "󰌾", label: "Lock",     cmd: ["hyprlock"] },
+            // sh resolves $XDG_SESSION_ID at click time (inherited from the session);
+            // terminate-user would kill ALL sessions, no-arg needs systemd >= 256
+            { icon: "󰍃", label: "Logout",   cmd: ["sh", "-c", "loginctl terminate-session \"$XDG_SESSION_ID\""] },
+            { icon: "󰤄", label: "Suspend",  cmd: ["systemctl", "suspend"] },
+            { icon: "󰜉", label: "Reboot",   cmd: ["systemctl", "reboot"] },
+            { icon: "󰐥", label: "Shutdown", cmd: ["systemctl", "poweroff"] }
+        ]
+
+        function run(i) {
+            root.powerVisible = false
+            Quickshell.execDetached(powerWin.actions[i].cmd)
+        }
+
+        HyprlandFocusGrab {
+            windows: [powerWin]
+            active: root.powerVisible
+            onCleared: root.powerVisible = false
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 10
+            color: root.colBar
+            border.width: 2
+            border.color: root.colPill
+
+            focus: true
+            Keys.onPressed: event => {
+                if (event.key === Qt.Key_Escape)
+                    root.powerVisible = false
+                else if (event.key === Qt.Key_Down || event.key === Qt.Key_J)
+                    root.powerIndex = Math.min(root.powerIndex + 1, 4)
+                else if (event.key === Qt.Key_Up || event.key === Qt.Key_K)
+                    root.powerIndex = Math.max(root.powerIndex - 1, 0)
+                else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
+                    powerWin.run(root.powerIndex)
+                else
+                    return
+                event.accepted = true
+            }
+
+            Column {
+                id: powerCol
+                anchors.centerIn: parent
+                spacing: 4
+
+                Repeater {
+                    model: powerWin.actions
+
+                    Rectangle {
+                        required property var modelData
+                        required property int index
+
+                        width: 196
+                        height: 30
+                        radius: 7
+                        // hover moves the selection: mouse and keyboard share one highlight
+                        color: index === root.powerIndex ? root.colPillHover : "transparent"
+
+                        Row {
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.left: parent.left
+                            anchors.leftMargin: 14
+                            spacing: 10
+
+                            Text {
+                                text: modelData.icon
+                                color: root.colAccent
+                                font { family: root.fontFamily; pixelSize: root.fontSize }
+                            }
+                            Text {
+                                text: modelData.label
+                                color: root.colFg
+                                font { family: root.fontFamily; pixelSize: root.fontSize }
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onEntered: root.powerIndex = index
+                            onClicked: powerWin.run(index)
                         }
                     }
                 }
@@ -692,6 +807,7 @@ ShellRoot {
                     onClicked: mouse => {
                         if (mouse.button === Qt.RightButton) {
                             root.calMonth = new Date() // reopen on current month
+                            root.powerVisible = false  // one popup at a time
                             root.calVisible = !root.calVisible
                         } else {
                             root.clockShowDate = !root.clockShowDate

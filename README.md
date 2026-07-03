@@ -35,7 +35,7 @@ Barebones NixOS + Hyprland (native Lua config) + Quickshell bar. Tokyo Night eve
     ├── hypr/
     │   ├── hyprland.lua    # the compositor config (Lua, Hyprland 0.55+)
     │   ├── hl.meta.lua     # LSP stubs → autocomplete for the hl.* API in nvim
-    │   ├── scripts/        # keybinds.sh (cheatsheet), power-menu.sh
+    │   ├── scripts/        # keybinds.sh (cheatsheet)
     │   └── hypridle/hyprlock.conf
     ├── quickshell/shell.qml  # bar + notifications + volume OSD (QML, hot-reloads)
     ├── walker/             # launcher config
