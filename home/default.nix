@@ -127,6 +127,18 @@ in
       ".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/starship/starship.toml";
       ".tmux.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux/tmux.conf";
 
+      # Tmux plugins at a stable path (same trick as hypr-plugins above): nix
+      # delivers them, config/tmux/tmux.conf run-shells them — no TPM, no
+      # store hashes in the hot-editable config
+      ".local/share/tmux-plugins/sensible".source =
+        "${pkgs.tmuxPlugins.sensible}/share/tmux-plugins/sensible";
+      ".local/share/tmux-plugins/resurrect".source =
+        "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect";
+      ".local/share/tmux-plugins/continuum".source =
+        "${pkgs.tmuxPlugins.continuum}/share/tmux-plugins/continuum";
+      ".local/share/tmux-plugins/yank".source =
+        "${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank";
+
       # btop: NOT a repo symlink on purpose — btop rewrites its config on every
       # exit, which would constantly dirty the repo. Read-only store file; the
       # theme follows the same current-theme symlink as everything else
