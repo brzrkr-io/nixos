@@ -29,8 +29,10 @@ shell-integration-features = cursor,sudo,title
 cursor-style = block
 cursor-style-blink = false
 
-# Scrollback
-scrollback-limit = 500000
+# Scrollback: bytes, not lines — 100MB ≈ 1M lines per surface, allocated
+# lazily so the ceiling is free until output actually fills it.
+# (Inside tmux this doesn't apply; that's history-limit in tmux.conf.)
+scrollback-limit = 100000000
 
 # Performance
 bold-is-bright = false
