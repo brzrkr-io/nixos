@@ -128,11 +128,17 @@ in
       # exit, which would constantly dirty the repo. Read-only store file; the
       # theme follows the same current-theme symlink as everything else
       # (config/themes/*/btop.theme), picked up on next btop launch.
-      ".config/btop/btop.conf".text = ''
-        color_theme = "/home/${username}/.config/theme/current/btop.theme"
-        theme_background = False
-        vim_keys = True
-      '';
+      # force: a pre-existing (or btop-rewritten) plain btop.conf otherwise
+      # fails the whole HM activation with "would be clobbered" — in-app btop
+      # tweaks reset on rebuild, that's the accepted trade.
+      ".config/btop/btop.conf" = {
+        force = true;
+        text = ''
+          color_theme = "/home/${username}/.config/theme/current/btop.theme"
+          theme_background = False
+          vim_keys = True
+        '';
+      };
     };
   };
 
