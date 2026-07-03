@@ -1,0 +1,10 @@
+# tokyonight day — official folke palette; accent=magenta to mirror night
+[palettes.theme]
+blue = "#2e7de9"
+red = "#f52a65"
+green = "#587539"
+cyan = "#007197"
+yellow = "#8c6c3e"
+bright-black = "#848cb5"
+accent = "#9854f1"
+conflict = "#b15c00"

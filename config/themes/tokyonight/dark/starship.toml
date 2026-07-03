@@ -1,0 +1,10 @@
+# tokyonight night — official folke palette; accent=magenta (the old prompt purple)
+[palettes.theme]
+blue = "#7aa2f7"
+red = "#f7768e"
+green = "#9ece6a"
+cyan = "#7dcfff"
+yellow = "#e0af68"
+bright-black = "#565f89"
+accent = "#bb9af7"
+conflict = "#ff9e64"

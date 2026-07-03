@@ -132,6 +132,10 @@ apply() { # [nowall]
   cp "$v/quickshell.qml" "$repo/config/quickshell/Colors.qml"
   cat "$v/walker.css" "$repo/config/walker/themes/current/style.base.css" \
     >"$repo/config/walker/themes/current/style.css"
+  # starship re-reads its config on every prompt render — no reload signal
+  # needed, the next prompt just picks it up
+  cat "$repo/config/starship/starship.base.toml" "$v/starship.toml" \
+    >"$repo/config/starship/starship.toml"
 
   # kick off the wallpaper animation first — app reloads land mid-sweep so the
   # whole switch reads as one motion

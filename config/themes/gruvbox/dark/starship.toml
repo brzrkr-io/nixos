@@ -1,0 +1,10 @@
+# gruvbox dark hard — bright variants (same picks as quickshell/tmux fragments)
+[palettes.theme]
+blue = "#83a598"
+red = "#fb4934"
+green = "#b8bb26"
+cyan = "#8ec07c"
+yellow = "#fabd2f"
+bright-black = "#928374"
+accent = "#fe8019"
+conflict = "#d3869b"
