@@ -135,7 +135,9 @@
     thunar-archive-plugin
     thunar-volman
     imv
-    mpv
+    # mpris script: without it mpv is invisible to playerctl (media keys) and
+    # the bar's MPRIS pill
+    (mpv.override { scripts = [ mpvScripts.mpris ]; })
 
     # Controls
     brightnessctl

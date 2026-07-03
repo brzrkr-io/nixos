@@ -8,6 +8,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
+import Quickshell.Services.Mpris
 import QtQuick
 import QtQuick.Layouts
 
@@ -270,6 +271,38 @@ ShellRoot {
                 }
 
                 Item { Layout.fillWidth: true } // spacer
+
+                // Media (MPRIS): now playing — click = play/pause, scroll = next/prev.
+                // Prefers whichever player is actually playing (e.g. Spotify vs
+                // a paused mpv); text is truncated in JS so the pill stays compact.
+                Pill {
+                    id: mediaPill
+                    property var player: Mpris.players.values.find(p => p.playbackState === MprisPlaybackState.Playing)
+                        ?? Mpris.players.values[0] ?? null
+                    property bool playing: player?.playbackState === MprisPlaybackState.Playing
+
+                    visible: player !== null && (player.trackTitle ?? "") !== ""
+                    onClicked: if (player?.canTogglePlaying) player.togglePlaying()
+                    onWheeled: wheel => {
+                        if (!player) return
+                        if (wheel.angleDelta.y > 0 && player.canGoNext) player.next()
+                        else if (wheel.angleDelta.y < 0 && player.canGoPrevious) player.previous()
+                    }
+
+                    PillText {
+                        text: mediaPill.playing ? "󰏤" : "󰐊"
+                        color: root.colGreen
+                    }
+                    PillText {
+                        text: {
+                            var p = mediaPill.player
+                            if (!p) return ""
+                            var s = (p.trackArtist ? p.trackArtist + " — " : "") + (p.trackTitle ?? "")
+                            return s.length > 45 ? s.slice(0, 44) + "…" : s
+                        }
+                        color: mediaPill.playing ? root.colFg : root.colDim
+                    }
+                }
 
                 // Volume: click = mute toggle, scroll = +/- 2%
                 Pill {
