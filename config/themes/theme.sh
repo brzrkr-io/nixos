@@ -156,7 +156,6 @@ apply() { # [nowall]
   # it fails silently here — that was the stuck-purple-borders bug. The eval
   # dofiles the fragment itself, same as hyprland.lua does at startup.
   hyprctl eval 'local t = dofile(os.getenv("HOME") .. "/.config/theme/current/hypr.lua"); hl.config({ general = { col = { active_border = { colors = t.active, angle = 45 }, inactive_border = t.inactive } }, decoration = { shadow = { color = t.shadow } } })' >/dev/null 2>&1 || true
-  dunstctl reload >/dev/null 2>&1 || true
   gdbus call --session --dest com.mitchellh.ghostty \
     --object-path /com/mitchellh/ghostty \
     --method org.gtk.Actions.Activate reload-config '[]' '{}' >/dev/null 2>&1 || true

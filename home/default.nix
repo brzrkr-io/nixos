@@ -20,7 +20,6 @@ let
       awww
       glib # gsettings + gdbus (ghostty reload)
       libnotify
-      dunst # dunstctl
       neovim
       tmux
     ];
@@ -114,7 +113,6 @@ in
       ".config/hypr".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/hypr";
       ".config/quickshell".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/quickshell";
       ".config/walker".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/walker";
-      ".config/dunst".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/dunst";
       ".config/ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/ghostty";
       ".config/nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
       ".config/helix".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/helix";

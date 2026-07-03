@@ -10,6 +10,7 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
 import Quickshell.Services.Mpris
+import Quickshell.Services.Notifications
 import QtQuick
 import QtQuick.Layouts
 
@@ -176,6 +177,123 @@ ShellRoot {
                 }
                 PillText {
                     text: root.volumeMuted ? "muted" : root.volumeLevel + "%"
+                }
+            }
+        }
+    }
+
+    // ── Notifications (replaces dunst) ───────────────────────────────────
+    // keepOnReload false: theme switch rewrites Colors.qml → full config
+    // reload — false means old popups can never replay. (If a history UI is
+    // ever added: flip to true and gate popups on !modelData.lastGeneration.)
+    NotificationServer {
+        id: notifServer
+        keepOnReload: false
+        bodySupported: true
+        onNotification: n => n.tracked = true
+    }
+
+    PanelWindow {
+        visible: notifServer.trackedNotifications.values.length > 0
+        anchors {
+            top: true
+            right: true
+        }
+        margins {
+            top: 12
+            right: 12
+        }
+        exclusiveZone: 0 // reserve nothing, but sit below the bar's zone
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.namespace: "qs-notifications"
+        implicitWidth: 320
+        implicitHeight: notifCol.implicitHeight
+        color: "transparent"
+
+        Column {
+            id: notifCol
+            width: 320
+            spacing: 8
+            add: Transition {
+                NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 400; easing.type: Easing.OutCubic }
+                NumberAnimation { property: "x"; from: 40; to: 0; duration: 400; easing.type: Easing.OutCubic }
+            }
+            move: Transition {
+                NumberAnimation { property: "y"; duration: 400; easing.type: Easing.OutCubic }
+            }
+
+            Repeater {
+                model: notifServer.trackedNotifications
+
+                Rectangle {
+                    id: card
+                    required property Notification modelData
+                    required property int index
+                    // dunst semantics: explicit 0 = sticky; critical default = sticky
+                    property bool sticky: modelData.expireTimeout === 0
+                        || (modelData.urgency === NotificationUrgency.Critical && modelData.expireTimeout < 0)
+
+                    visible: index < 5 // dunst notification_limit
+                    width: 320
+                    implicitHeight: cardText.implicitHeight + 28
+                    radius: 10
+                    color: root.colBar
+                    border.width: 2
+                    border.color: modelData.urgency === NotificationUrgency.Critical ? root.colRed
+                                : modelData.urgency === NotificationUrgency.Low ? root.colCyan
+                                : root.colAccent
+
+                    Behavior on color { ColorAnimation { duration: 400; easing.type: Easing.OutCubic } }
+
+                    Column {
+                        id: cardText
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            verticalCenter: parent.verticalCenter
+                            margins: 16
+                        }
+                        spacing: 3
+
+                        Text {
+                            width: parent.width
+                            text: card.modelData.summary
+                            color: root.colFg
+                            font { family: root.fontFamily; pixelSize: root.fontSize; bold: true }
+                            wrapMode: Text.Wrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                        }
+                        Text {
+                            width: parent.width
+                            visible: text !== ""
+                            text: card.modelData.body
+                            textFormat: Text.StyledText // dunst markup=full: <b>/<i>/<u>
+                            color: root.colDim
+                            font { family: root.fontFamily; pixelSize: root.fontSize - 1 }
+                            wrapMode: Text.Wrap
+                            maximumLineCount: 6
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    Timer {
+                        // expireTimeout is in SECONDS; >0 honored, -1 = defaults
+                        interval: card.modelData.expireTimeout > 0 ? card.modelData.expireTimeout * 1000
+                            : card.modelData.urgency === NotificationUrgency.Low ? 5000 : 10000
+                        running: card.visible && !card.sticky // overflow (>5) waits its turn
+                        onTriggered: card.modelData.expire()
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onClicked: mouse => {
+                            if (mouse.button === Qt.RightButton)
+                                notifServer.trackedNotifications.values.slice().forEach(n => n.dismiss())
+                            else
+                                card.modelData.dismiss()
+                        }
+                    }
                 }
             }
         }

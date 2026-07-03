@@ -37,10 +37,10 @@ Barebones NixOS + Hyprland (native Lua config) + Quickshell bar. Tokyo Night eve
     │   ├── hl.meta.lua     # LSP stubs → autocomplete for the hl.* API in nvim
     │   ├── scripts/        # keybinds.sh (cheatsheet), power-menu.sh
     │   └── hypridle/hyprlock.conf
-    ├── quickshell/shell.qml  # the top bar (QML, hot-reloads on save)
+    ├── quickshell/shell.qml  # bar + notifications + volume OSD (QML, hot-reloads)
     ├── walker/             # launcher config
     ├── nvim/               # kickstart.nvim (edit init.lua, own it)
-    ├── ghostty/ dunst/ starship/ tmux/  # app configs, carried over
+    ├── ghostty/ starship/ tmux/  # app configs, carried over
     └── wallpapers/         # incl. tokyonight-nix.png (+ .svg source)
 ```
 

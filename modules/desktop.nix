@@ -107,9 +107,9 @@
   # DESKTOP PACKAGES
   # ==========================================================================
   environment.systemPackages = with pkgs; [
-    # Shell / launcher / notifications
+    # Shell / launcher / notifications (quickshell IS the notification daemon
+    # and volume OSD — shell.qml; libnotify stays for notify-send)
     quickshell
-    dunst
     libnotify
 
     # Wallpaper, lock, idle, night light
