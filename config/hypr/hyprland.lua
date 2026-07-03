@@ -65,6 +65,10 @@ end
 -- polkit agent and wallpaper (awww) run as systemd user services; starting the
 -- session target below is what activates them (greetd launches Hyprland bare)
 hl.on("hyprland.start", function()
+    -- Hyprland forwards WAYLAND_DISPLAY/DISPLAY to the systemd user manager but
+    -- NOT XDG_SESSION_TYPE — without it, apps spawned by user services (elephant
+    -- launches everything the launcher opens) exit instantly (spotify: code 1)
+    hl.exec_cmd("systemctl --user import-environment XDG_SESSION_TYPE")
     hl.exec_cmd("systemctl --user start hyprland-session.target")
     hl.exec_cmd("quickshell")
     hl.exec_cmd("walker --gapplication-service") -- resident for instant opens
