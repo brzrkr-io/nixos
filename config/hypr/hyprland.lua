@@ -50,6 +50,13 @@ if io.open(dc, "r") then
     hl.plugin.load(dc)
 end
 
+-- Hyprspace: workspace overview (macOS Mission Control style), toggled by the
+-- SUPER+grave bind below. Same guarded-load pattern as dynamic-cursors.
+local hs = os.getenv("HOME") .. "/.local/share/hypr-plugins/hyprspace.so"
+if io.open(hs, "r") then
+    hl.plugin.load(hs)
+end
+
 
 -------------------
 ---- AUTOSTART ----
@@ -257,6 +264,24 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }),
         { desc = "Move window to workspace " .. i })
 end
+
+-- Workspace overview (Hyprspace plugin registers the `overview` dispatcher
+-- namespace). Everything pcall-guarded: if the plugin is missing or its Lua
+-- calling convention differs, the bind degrades to a notification instead of
+-- erroring the config.
+hl.bind(mainMod .. " + grave", function()
+    local p = hl.plugin and hl.plugin.overview
+    if not p or not p.toggle then
+        hl.dispatch(hl.dsp.exec_cmd("notify-send Hyprspace 'overview plugin not loaded'"))
+        return
+    end
+    local ok, d = pcall(p.toggle)
+    if ok and type(d) == "table" then
+        pcall(hl.dispatch, d)          -- toggle() returned a dispatcher
+    elseif not ok then
+        pcall(hl.dispatch, p.toggle)   -- fallback: dispatch the function itself
+    end
+end, { desc = "Workspace overview (Mission Control)" })
 
 -- Special workspace (scratchpad)
 hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"), { desc = "Toggle scratchpad" })

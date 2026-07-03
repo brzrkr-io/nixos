@@ -118,6 +118,9 @@ in
       # home-manager can't write into)
       ".local/share/hypr-plugins/dynamic-cursors.so".source =
         "${pkgs.hyprlandPlugins.hypr-dynamic-cursors}/lib/libhypr-dynamic-cursors.so";
+      # Workspace overview, Mission Control style (SUPER+` — bind in hyprland.lua)
+      ".local/share/hypr-plugins/hyprspace.so".source =
+        "${pkgs.hyprlandPlugins.hyprspace}/lib/libhyprspace.so";
       ".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/starship/starship.toml";
       ".tmux.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux/tmux.conf";
     };
