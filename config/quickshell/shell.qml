@@ -6,6 +6,7 @@
 
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
 import Quickshell.Services.Mpris
@@ -95,6 +96,89 @@ ShellRoot {
         id: volRefresh
         interval: 150
         onTriggered: volProc.running = true
+    }
+
+    // ── Volume OSD (replaces swayosd) ────────────────────────────────────
+    // Shown ONLY by the media-key IPC calls below (hyprland.lua binds run
+    // `qs ipc call osd ...`) — never by the startup/drift poll.
+    property bool osdVisible: false
+
+    function showOsd() {
+        osdVisible = true
+        osdHide.restart()
+    }
+
+    Timer {
+        id: osdHide
+        interval: 1200
+        onTriggered: root.osdVisible = false
+    }
+
+    IpcHandler {
+        target: "osd"
+        function volumeUp(): void {
+            root.volAction(["set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@", "5%+"])
+            root.showOsd()
+        }
+        function volumeDown(): void {
+            root.volAction(["set-volume", "@DEFAULT_AUDIO_SINK@", "5%-"])
+            root.showOsd()
+        }
+        function muteToggle(): void {
+            root.volAction(["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+            root.showOsd()
+        }
+    }
+
+    PanelWindow {
+        visible: root.osdVisible // unmapped when hidden — zero idle cost
+        anchors.bottom: true     // bottom-only anchor = horizontally centered
+        margins.bottom: 120
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.namespace: "qs-osd"
+        implicitWidth: 280
+        implicitHeight: 48
+        color: "transparent"
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 10
+            color: root.colBar
+            border.width: 2
+            border.color: root.colPill
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 16
+                anchors.rightMargin: 16
+                spacing: 10
+
+                PillText {
+                    text: root.volumeMuted ? "󰝟" : root.volumeLevel === 0 ? "󰕿" : root.volumeLevel < 50 ? "󰖀" : "󰕾"
+                    color: root.volumeMuted ? root.colDim : root.colCyan
+                }
+                Rectangle { // thin track + fill
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignVCenter
+                    implicitHeight: 4
+                    radius: 2
+                    color: root.colPill
+
+                    Rectangle {
+                        width: parent.width * Math.min(root.volumeLevel, 100) / 100
+                        height: 4
+                        radius: 2
+                        color: root.volumeMuted ? root.colDim : root.colCyan
+                        // 150ms matches the volRefresh cadence (400ms would lag key-repeat)
+                        Behavior on width { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                    }
+                }
+                PillText {
+                    text: root.volumeMuted ? "muted" : root.volumeLevel + "%"
+                }
+            }
+        }
     }
 
     // ── Network (nmcli polling, 5s) ──────────────────────────────────────

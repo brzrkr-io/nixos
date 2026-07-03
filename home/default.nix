@@ -246,9 +246,6 @@ in
     [ -e "$HOME/.config/theme/current" ] || ln -sfnT "${dotfiles}/themes/tokyonight/dark" "$HOME/.config/theme/current"
   '';
 
-  # Volume/brightness on-screen display (media keys call swayosd-client)
-  services.swayosd.enable = true;
-
   # Polkit authentication agent (GTK)
   systemd.user.services.polkit-gnome-agent = {
     Unit = {

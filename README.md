@@ -26,7 +26,7 @@ Barebones NixOS + Hyprland (native Lua config) + Quickshell bar. Tokyo Night eve
 │
 ├── home/default.nix        # YOUR USER: user packages, zsh + aliases, git,
 │                           # dotfile symlinks, user services (wallpaper,
-│                           # polkit agent, elephant, swayosd)
+│                           # polkit agent, elephant)
 │
 ├── pkgs/                   # custom packages not in nixpkgs (linear)
 │
