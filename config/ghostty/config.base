@@ -52,5 +52,7 @@ cursor-click-to-move = true
 
 # Cursor animation shader (floaty smear). Swap the file to change the effect:
 # cursor_tail / cursor_sweep / ripple_cursor / sonic_boom_cursor / ...
+# animation=true (not always): render only while the effect is active —
+# `always` kept the 4K surface redrawing at full framerate even when idle
 custom-shader = shaders/cursor_warp.glsl
-custom-shader-animation = always
+custom-shader-animation = true
