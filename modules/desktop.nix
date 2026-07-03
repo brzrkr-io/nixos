@@ -112,10 +112,11 @@
     dunst
     libnotify
 
-    # Wallpaper, lock, idle
+    # Wallpaper, lock, idle, night light
     awww
     hyprlock
     hypridle
+    hyprsunset
 
     # Screenshots (+ tesseract for the SUPER+SHIFT+T screen-OCR bind)
     grim

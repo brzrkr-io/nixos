@@ -63,6 +63,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("walker --gapplication-service") -- resident for instant opens
     hl.exec_cmd("dunst")
     hl.exec_cmd("hypridle")
+    hl.exec_cmd("hyprsunset") -- night light daemon; darkman flips it at sunset (home/default.nix)
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
 end)

@@ -32,6 +32,18 @@ let
     runtimeInputs = [ themeCli ];
     text = ''exec bash "${dotfiles}/themes/theme-picker.sh" "$@"'';
   };
+
+  # Night light: darkman hooks run outside the compositor's env, so recover the
+  # Hyprland instance signature (same trick as theme.sh) before talking to the
+  # hyprsunset daemon (autostarted by hyprland.lua).
+  nightlight = cmd: pkgs.writeShellScript "nightlight-${lib.replaceStrings [" "] ["-"] cmd}" ''
+    runtime="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+    if [ -z "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && [ -d "$runtime/hypr" ]; then
+      HYPRLAND_INSTANCE_SIGNATURE="$(ls "$runtime/hypr" | head -n1)"
+      export HYPRLAND_INSTANCE_SIGNATURE
+    fi
+    ${pkgs.hyprland}/bin/hyprctl hyprsunset ${cmd} || true
+  '';
 in
 {
   imports = [
@@ -168,8 +180,9 @@ in
   # Walker's data backend (apps, calc, files providers)
   services.elephant.enable = true;
 
-  # Sunrise/sunset dark-mode daemon — drives `theme mode system`. Static
-  # coordinates (no geoclue); TODO: set these to your rough location.
+  # Sunrise/sunset dark-mode daemon — drives `theme mode system` and the
+  # hyprsunset night light. Static coordinates (no geoclue); TODO: set these
+  # to your rough location.
   services.darkman = {
     enable = true;
     settings = {
@@ -179,6 +192,9 @@ in
     };
     darkModeScripts.theme = "${themeCli}/bin/theme darkman-hook dark";
     lightModeScripts.theme = "${themeCli}/bin/theme darkman-hook light";
+    # Night light rides the same sunset trigger: warm after dark, neutral by day
+    darkModeScripts.nightlight = "${nightlight "temperature 4200"}";
+    lightModeScripts.nightlight = "${nightlight "identity"}";
   };
 
   # Seed theme state + current-theme symlink so first login after a fresh
