@@ -64,6 +64,10 @@ in
       # helix is on trial as a possible nvim replacement (zero-plugin IDE).
       neovim
       helix
+      # tmux: same rule — programs.tmux generates ~/.config/tmux/tmux.conf,
+      # which tmux loads AFTER ~/.tmux.conf, silently overriding it
+      # (mouse off, emacs keys, history 2000...)
+      tmux
 
       # Git tools
       lazygit
@@ -425,9 +429,4 @@ in
     nix-direnv.enable = true;
   };
 
-  # ----------------------------------------------------------------------------
-  # EDITORS & MULTIPLEXER
-  # ----------------------------------------------------------------------------
-
-  programs.tmux.enable = true;
 }
