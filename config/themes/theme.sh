@@ -110,7 +110,7 @@ set_wallpaper() { # [file]
 }
 
 apply() { # [nowall]
-  local t p v alt gtk s nd rgbas
+  local t p v alt gtk s nd
   t="$(read_state theme tokyonight)"
   p="$(resolve_polarity)"
   v="$themes_dir/$t/$p"
@@ -144,16 +144,14 @@ apply() { # [nowall]
   if [ -n "$gtk" ]; then
     gsettings set org.gnome.desktop.interface color-scheme "$gtk" >/dev/null 2>&1 || true
   fi
-  # hyprland: set colors via keywords, NOT `hyprctl reload` — a full reload
-  # re-fires every plugin's config hooks and hypr-dynamic-cursors segfaults on
-  # that (session crash 2026-07-02, see ~/.cache/hyprland/hyprlandCrashReport*).
-  # Relies on the fragment's rgba order: active x2, inactive, shadow.
-  mapfile -t rgbas < <(grep -Po 'rgba\([0-9a-fA-F]{8}\)' "$v/hypr.lua" || true)
-  if [ "${#rgbas[@]}" -eq 4 ]; then
-    hyprctl keyword general:col.active_border "${rgbas[0]} ${rgbas[1]} 45deg" >/dev/null 2>&1 || true
-    hyprctl keyword general:col.inactive_border "${rgbas[2]}" >/dev/null 2>&1 || true
-    hyprctl keyword decoration:shadow:color "${rgbas[3]}" >/dev/null 2>&1 || true
-  fi
+  # hyprland: push colors via `hyprctl eval`, NOT `hyprctl reload` — a full
+  # reload re-fires every plugin's config hooks and hypr-dynamic-cursors
+  # segfaults on that (session crash 2026-07-02, see
+  # ~/.cache/hyprland/hyprlandCrashReport*). Plain `hyprctl keyword` is also
+  # out: 0.55+ rejects it ("keyword can't work with non-legacy parsers"), and
+  # it fails silently here — that was the stuck-purple-borders bug. The eval
+  # dofiles the fragment itself, same as hyprland.lua does at startup.
+  hyprctl eval 'local t = dofile(os.getenv("HOME") .. "/.config/theme/current/hypr.lua"); hl.config({ general = { col = { active_border = { colors = t.active, angle = 45 }, inactive_border = t.inactive } }, decoration = { shadow = { color = t.shadow } } })' >/dev/null 2>&1 || true
   dunstctl reload >/dev/null 2>&1 || true
   gdbus call --session --dest com.mitchellh.ghostty \
     --object-path /com/mitchellh/ghostty \
