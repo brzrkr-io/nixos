@@ -581,7 +581,7 @@ ShellRoot {
             id: pillMouse
             anchors.fill: parent
             hoverEnabled: true
-            acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked: mouse => pill.clicked(mouse)
             onWheel: wheel => pill.wheeled(wheel)
         }
@@ -702,11 +702,7 @@ ShellRoot {
                     property bool playing: player?.playbackState === MprisPlaybackState.Playing
 
                     visible: player !== null && (player.trackTitle ?? "") !== ""
-                    // left = play/pause, middle = raise the player's window
-                    onClicked: mouse => {
-                        if (mouse.button === Qt.MiddleButton && player?.canRaise) player.raise()
-                        else if (player?.canTogglePlaying) player.togglePlaying()
-                    }
+                    onClicked: if (player?.canTogglePlaying) player.togglePlaying()
                     onWheeled: wheel => {
                         if (!player) return
                         if (wheel.angleDelta.y > 0 && player.canGoNext) player.next()
@@ -748,10 +744,8 @@ ShellRoot {
                     }
                 }
 
-                // Network: click = connection editor
+                // Network
                 Pill {
-                    onClicked: Quickshell.execDetached(["nm-connection-editor"])
-
                     PillText {
                         text: root.netStatus === "ethernet" ? "󰈀"
                             : root.netStatus === "wifi" ? "󰖩"
