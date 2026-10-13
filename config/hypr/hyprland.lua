@@ -228,6 +228,9 @@ hl.bind(mainMod .. " + ALT + V", hl.dsp.exec_cmd("noctalia msg panel-toggle clip
 
 -- Screenshots
 hl.bind("Print", hl.dsp.exec_cmd("grim -g \"$(slurp -d)\" - | swappy -f -"), { desc = "Screenshot region" })
+-- In Mac mode, the Air75 V3's dedicated screenshot key emits Cmd+Shift+4.
+hl.bind(mainMod .. " + SHIFT + 4", hl.dsp.exec_cmd("grim -g \"$(slurp -d)\" - | swappy -f -"),
+    { desc = "Screenshot region (NuPhy key)" })
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim - | swappy -f -"), { desc = "Screenshot full screen" })
 
 -- Screen OCR: select a region, text lands in the clipboard (tesseract comes
@@ -251,13 +254,15 @@ hl.bind(mainMod .. " + SHIFT + down", hl.dsp.window.move({ direction = "down" })
 hl.bind(mainMod .. " + SHIFT + up", hl.dsp.window.move({ direction = "up" }), { desc = "Move window up" })
 hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.move({ direction = "right" }), { desc = "Move window right" })
 
--- Workspaces: SUPER+[0-9] switches; SUPER+SHIFT+[0-9] moves the window.
--- Digits stay out of xremap so Cmd workspace switching works in every app.
+-- SUPER+[0-9] switches workspaces; SUPER+SHIFT+[0-9] moves windows.
+-- Cmd+Shift+4 is the NuPhy screenshot key, so moving a window to workspace 4
+-- adds Ctrl to avoid that firmware-level conflict.
 for i = 1, 10 do
     local key = i % 10 -- 10 maps to key 0
+    local moveMods = i == 4 and (mainMod .. " + CTRL + SHIFT + ") or (mainMod .. " + SHIFT + ")
     hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }),
         { desc = "Go to workspace " .. i })
-    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }),
+    hl.bind(moveMods .. key, hl.dsp.window.move({ workspace = i }),
         { desc = "Move window to workspace " .. i })
 end
 
