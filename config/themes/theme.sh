@@ -17,7 +17,7 @@ link="$HOME/.config/theme/current"
 mkdir -p "$state_dir" "$HOME/.config/theme"
 
 # Hooks (darkman, systemd) run outside the compositor's environment — recover
-# the session handles so hyprctl/awww/dbus calls still land.
+# the session handles so hyprctl/noctalia-ipc/dbus calls still land.
 runtime="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 if [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && [ -d "$runtime/hypr" ]; then
   sig="$(find "$runtime/hypr" -mindepth 1 -maxdepth 1 -printf '%f\n' 2>/dev/null | head -n1 || true)"
@@ -66,17 +66,8 @@ resolve_polarity() {
   esac
 }
 
-wallpaper_transition() { # <path> — smooth grow radiating from the cursor
-  local pos="center" cur
-  cur="$(hyprctl cursorpos 2>/dev/null | tr -d ' ' || true)"
-  if [[ "$cur" =~ ^[0-9]+,[0-9]+$ ]]; then pos="$cur"; fi
-  awww img "$1" \
-    --transition-type grow \
-    --transition-pos "$pos" \
-    --transition-duration 1.2 \
-    --transition-fps 30 \
-    --transition-bezier '.05,.7,.1,1' \
-    >/dev/null 2>&1 || true
+wallpaper_transition() { # <path> — noctalia renders + animates the swap
+  noctalia msg wallpaper-set "$1" >/dev/null 2>&1 || true
 }
 
 set_wallpaper() { # [file]
@@ -110,8 +101,8 @@ set_wallpaper() { # [file]
 }
 
 apply() { # [nowall]
-  local t p v alt gtk s nd
-  t="$(read_state theme tokyonight)"
+  local t p v alt gtk s nd ns
+  t="$(read_state theme gruvbox)"
   p="$(resolve_polarity)"
   v="$themes_dir/$t/$p"
   if [ ! -d "$v" ]; then
@@ -129,9 +120,6 @@ apply() { # [nowall]
   ln -sfnT "$v" "$link"
 
   # regenerate configs for apps that can't follow the symlink flip
-  cp "$v/quickshell.qml" "$repo/config/quickshell/Colors.qml"
-  cat "$v/walker.css" "$repo/config/walker/themes/current/style.base.css" \
-    >"$repo/config/walker/themes/current/style.css"
   # starship re-reads its config on every prompt render — no reload signal
   # needed, the next prompt just picks it up
   cat "$repo/config/starship/starship.base.toml" "$v/starship.toml" \
@@ -144,21 +132,32 @@ apply() { # [nowall]
   fi
 
   # live refresh — every step best-effort (app may simply not be running)
+  # noctalia (bar/notifications/launcher/lock) follows via IPC: the theme.toml
+  # `noctalia` key names one of its predefined color schemes
+  ns="$(toml_get "$v/theme.toml" noctalia)"
+  if [ -n "$ns" ]; then
+    noctalia msg color-scheme-set builtin "$ns" >/dev/null 2>&1 || true
+  fi
+  if [ "$p" = dark ]; then
+    noctalia msg theme-mode-set dark >/dev/null 2>&1 || true
+  else
+    noctalia msg theme-mode-set light >/dev/null 2>&1 || true
+  fi
   gtk="$(toml_get "$v/theme.toml" gtk)"
   if [ -n "$gtk" ]; then
     gsettings set org.gnome.desktop.interface color-scheme "$gtk" >/dev/null 2>&1 || true
   fi
-  # hyprland: push colors via `hyprctl eval`, NOT `hyprctl reload` — a full
-  # reload re-fires every plugin's config hooks and hypr-dynamic-cursors
-  # segfaults on that (session crash 2026-07-02, see
-  # ~/.cache/hyprland/hyprlandCrashReport*). Plain `hyprctl keyword` is also
-  # out: 0.55+ rejects it ("keyword can't work with non-legacy parsers"), and
-  # it fails silently here — that was the stuck-purple-borders bug. The eval
-  # dofiles the fragment itself, same as hyprland.lua does at startup.
+  # hyprland: push colors via `hyprctl eval`, NOT `hyprctl reload`. A full
+  # reload restarts the compositor's Lua config and can interrupt clients.
+  # Plain `hyprctl keyword` is also out: 0.55+ rejects it ("keyword can't
+  # work with non-legacy parsers"), and it fails silently here — that was the
+  # stuck-purple-borders bug. The eval dofiles the fragment itself, same as
+  # hyprland.lua does at startup.
   hyprctl eval 'local t = dofile(os.getenv("HOME") .. "/.config/theme/current/hypr.lua"); hl.config({ general = { col = { active_border = { colors = t.active, angle = 45 }, inactive_border = t.inactive } }, decoration = { shadow = { color = t.shadow } } })' >/dev/null 2>&1 || true
-  gdbus call --session --dest com.mitchellh.ghostty \
-    --object-path /com/mitchellh/ghostty \
-    --method org.gtk.Actions.Activate reload-config '[]' '{}' >/dev/null 2>&1 || true
+  # busctl (systemd) rather than gdbus: glib's CLI isn't on PATH here, and the
+  # failure was swallowed, so ghostty never live-reloaded on a theme switch
+  busctl --user call com.mitchellh.ghostty /com/mitchellh/ghostty \
+    org.gtk.Actions Activate 'sava{sv}' reload-config 0 0 >/dev/null 2>&1 || true
   tmux source-file "$HOME/.tmux.conf" >/dev/null 2>&1 || true
   for s in "$runtime"/nvim.*.0; do
     if [ -S "$s" ]; then
@@ -167,13 +166,6 @@ apply() { # [nowall]
         >/dev/null 2>&1 || true
     fi
   done
-  # restart resident walker so it re-reads the regenerated CSS — routed through
-  # hyprctl so it works even where this script can't see session processes.
-  # NOTE: `hyprctl dispatch` parses as Lua on 0.55+ (use eval), and pkill must
-  # match the comm ".walker-wrapped" (nix wrapper) — `pkill -x walker` is a
-  # silent no-op and full-cmdline -f patterns match their own wrapper shell.
-  hyprctl eval 'hl.exec_cmd([[sh -c "pkill -x .walker-wrapped; sleep 0.3; exec walker --gapplication-service"]])' >/dev/null 2>&1 || true
-
   # stylix GTK palette + Spotify are baked at build time from nix-default.nix
   nd="$(toml_get "$themes_dir/nix-default.nix" theme)"
   if [ -n "$nd" ] && [ "$nd" != "$t" ]; then
@@ -189,7 +181,7 @@ case "${1:-}" in
     list_themes
     ;;
   current)
-    echo "theme:    $(read_state theme tokyonight)"
+    echo "theme:    $(read_state theme gruvbox)"
     echo "mode:     $(read_state mode dark)"
     echo "polarity: $(resolve_polarity)"
     if [ -L "$link" ]; then echo "variant:  $(readlink -f "$link")"; fi

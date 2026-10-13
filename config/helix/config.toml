@@ -2,7 +2,7 @@
 # language servers come from the system config (modules/desktop.nix).
 # Learn the model: `hx --tutor` (~20 min). Cheat: SPACE opens the command palette.
 
-theme = "tokyonight"
+theme = "gruvbox_dark_hard"
 
 [editor]
 line-number = "relative"

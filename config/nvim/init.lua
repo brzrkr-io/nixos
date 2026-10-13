@@ -379,14 +379,16 @@ do
   -- [[ Colorscheme ]]
   -- The active scheme lives in the system theme (~/.config/theme/current/nvim.lua,
   -- flipped by the `theme` CLI — which also live-reloads running instances over
-  -- the nvim server socket). Both theme plugins stay installed so any fragment
-  -- can load without a plugin sync.
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
-  vim.pack.add { gh 'ellisonleao/gruvbox.nvim' }
+  -- the nvim server socket).
+  -- rose-pine stays installed so `theme set rosepine` still works in nvim.
+  vim.pack.add { gh 'ellisonleao/gruvbox.nvim', gh 'rose-pine/neovim' }
   if not pcall(dofile, vim.fn.expand '~/.config/theme/current/nvim.lua') then
-    ---@diagnostic disable-next-line: missing-fields
-    require('tokyonight').setup { styles = { comments = { italic = false } } }
-    vim.cmd.colorscheme 'tokyonight-night'
+    require('gruvbox').setup {
+      contrast = 'hard',
+      transparent_mode = true,
+      italic = { strings = false, comments = false },
+    }
+    vim.cmd.colorscheme 'gruvbox'
   end
 
   -- Highlight todo, notes, etc in comments
@@ -690,7 +692,23 @@ do
     -- (~/nixos/modules/desktop.nix), NOT from mason — mason's downloaded
     -- binaries are dynamically linked and don't run on NixOS. To add a
     -- language: add the server here AND its package in desktop.nix.
-    gopls = {},
+    gopls = {
+      settings = {
+        gopls = {
+          -- Go's official formatter remains the source of truth; these
+          -- analyzers catch correctness issues while you work.
+          staticcheck = true,
+          analyses = {
+            nilness = true,
+            unusedparams = true,
+            unusedwrite = true,
+          },
+          usePlaceholders = true,
+          completeUnimported = true,
+          directoryFilters = { '-vendor' },
+        },
+      },
+    },
     pyright = {},
     rust_analyzer = {},
     ts_ls = {},
@@ -780,8 +798,8 @@ do
     format_on_save = function(bufnr)
       -- You can specify filetypes to autoformat on save here:
       local enabled_filetypes = {
-        -- lua = true,
-        -- python = true,
+        -- gofmt/gopls on save keeps the standard Go formatting invariant.
+        go = true,
       }
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }

@@ -1,7 +1,8 @@
 # Stylix: one base16 scheme as the single source of truth for GTK, cursor, and
-# fonts. autoEnable is OFF — hand-crafted configs (hyprland.lua, quickshell,
-# dunst, ghostty, nvim) get their colors from the runtime theme system
-# (config/themes/, `theme` CLI); stylix only themes what we explicitly enable.
+# fonts. autoEnable is OFF — hand-crafted configs (hyprland.lua, ghostty,
+# nvim) get their colors from the runtime theme system (config/themes/,
+# `theme` CLI, which also flips noctalia's color scheme via IPC); stylix only
+# themes what we explicitly enable.
 { config, pkgs, lib, inputs, username, hostname, ... }:
 
 let
@@ -15,7 +16,7 @@ in
     autoEnable = false;
 
     # Palette source (also doubles as the wallpaper stylix knows about)
-    image = ../config/wallpapers/tokyonight-nix.png;
+    image = ../config/wallpapers/nixos-blue.png;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/${themeDefault.base16}.yaml";
     polarity = themeDefault.polarity;
 

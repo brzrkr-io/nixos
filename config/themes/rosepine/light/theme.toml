@@ -1,0 +1,5 @@
+name = "rosepine"
+polarity = "light"
+wallpaper = "trees.png"
+gtk = "prefer-light"
+noctalia = "Rose Pine"

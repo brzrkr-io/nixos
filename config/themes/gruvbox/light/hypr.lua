@@ -1,6 +1,6 @@
--- gruvbox light hard: borders faded orange→yellow, inactive=bg3, shadow=bg2
+-- gruvbox light hard: borders faded aqua→green, inactive=bg3, shadow=bg2
 return {
-    active   = { "rgba(af3a03ee)", "rgba(b57614ee)" },
+    active   = { "rgba(427b58ee)", "rgba(79740eee)" },
     inactive = "rgba(bdae93aa)",
     shadow   = "rgba(d5c4a166)",
 }

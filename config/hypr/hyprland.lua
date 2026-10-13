@@ -1,11 +1,11 @@
--- Hyprland - Tokyo Night (native Lua config, Hyprland >= 0.55)
+-- Hyprland - Gruvbox (native Lua config, Hyprland >= 0.55)
 
 ------------------
 ---- MONITORS ----
 ------------------
 
 hl.monitor({
-    output   = "HDMI-A-1", -- new cable (2026-07): full 4K@60, was DP-2 capped at 30Hz
+    output   = "HDMI-A-2", -- new cable (2026-07): full 4K@60, was DP-2 capped at 30Hz
     mode     = "3840x2160@60",
     position = "0x0",
     scale    = "1.5", -- 27" 4K sweet spot: 1440p-sized workspace, 4K sharpness
@@ -25,7 +25,7 @@ hl.monitor({
 
 local terminal    = "ghostty"
 local fileManager = "thunar"
-local menu        = "walker"
+local menu        = "noctalia msg panel-toggle launcher"
 
 
 -------------------------------
@@ -37,45 +37,35 @@ local menu        = "walker"
 hl.env("XCURSOR_SIZE", "24")
 hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
 
+-- Steam is XWayland: with force_zero_scaling (below) it renders at native 4K,
+-- so its own UI must scale up to match the 1.5x monitor scale
+hl.env("STEAM_FORCE_DESKTOPUI_SCALING", "1.5")
+
 
 ----------------
 ---- PLUGINS ----
 ----------------
 
--- Dynamic cursors: physics tilt/stretch + shake-to-find. The .so is a
--- home-manager symlink (home/default.nix); guard so a fresh system without
--- it doesn't error the whole config.
-local dc = os.getenv("HOME") .. "/.local/share/hypr-plugins/dynamic-cursors.so"
-if io.open(dc, "r") then
-    hl.plugin.load(dc)
-end
 
--- Hyprspace: workspace overview (macOS Mission Control style), toggled by the
--- SUPER+grave bind below. Same guarded-load pattern as dynamic-cursors.
-local hs = os.getenv("HOME") .. "/.local/share/hypr-plugins/hyprspace.so"
-if io.open(hs, "r") then
-    hl.plugin.load(hs)
-end
 
 
 -------------------
 ---- AUTOSTART ----
 -------------------
 
--- polkit agent and wallpaper (awww) run as systemd user services; starting the
--- session target below is what activates them (greetd launches Hyprland bare)
+-- polkit agent runs as a systemd user service; starting the session target
+-- below is what activates it (greetd launches Hyprland bare)
 hl.on("hyprland.start", function()
     -- Hyprland forwards WAYLAND_DISPLAY/DISPLAY to the systemd user manager but
-    -- NOT XDG_SESSION_TYPE — without it, apps spawned by user services (elephant
-    -- launches everything the launcher opens) exit instantly (spotify: code 1)
+    -- NOT XDG_SESSION_TYPE — without it, apps spawned by user services exit
+    -- instantly (spotify: code 1)
     hl.exec_cmd("systemctl --user import-environment XDG_SESSION_TYPE")
     hl.exec_cmd("systemctl --user start hyprland-session.target")
-    hl.exec_cmd("quickshell")
-    hl.exec_cmd("walker --gapplication-service") -- resident for instant opens
+    -- Noctalia owns the bar, notifications, OSD, launcher, clipboard,
+    -- wallpaper, and lock screen.
+    hl.exec_cmd("noctalia --daemon")
     hl.exec_cmd("hypridle")
     hl.exec_cmd("hyprsunset") -- night light daemon; darkman flips it at sunset (home/default.nix)
-    hl.exec_cmd("wl-paste --type text --watch cliphist store")
-    hl.exec_cmd("wl-paste --type image --watch cliphist store")
 end)
 
 
@@ -88,16 +78,16 @@ end)
 local themeOk, theme = pcall(dofile, os.getenv("HOME") .. "/.config/theme/current/hypr.lua")
 if not themeOk or type(theme) ~= "table" then
     theme = {
-        active   = { "rgba(7aa2f7ee)", "rgba(bb9af7ee)" },
-        inactive = "rgba(414868aa)",
-        shadow   = "rgba(1a1a1aee)",
+        active   = { "rgba(fe8019ee)", "rgba(fabd2fee)" },
+        inactive = "rgba(504945aa)",
+        shadow   = "rgba(1d2021ee)",
     }
 end
 
 hl.config({
     general = {
-        gaps_in          = 1,
-        gaps_out         = 1,
+        gaps_in          = 5,
+        gaps_out         = 10,
         border_size      = 1,
 
         col              = {
@@ -119,9 +109,6 @@ hl.config({
 
     decoration = {
         rounding         = 0,
-
-        active_opacity   = 0.95,
-        inactive_opacity = 0.85,
 
         shadow           = {
             enabled      = true,
@@ -147,6 +134,12 @@ hl.config({
 
     dwindle = {
         preserve_split = true,
+    },
+
+    xwayland = {
+        -- Render X11 apps (Steam, etc.) at native resolution instead of
+        -- upscaling a 1x buffer to the monitor's 1.5x scale (fixes blur)
+        force_zero_scaling = true,
     },
 
     misc = {
@@ -216,25 +209,21 @@ local mainMod = "SUPER"
 -- Apps
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal), { desc = "Open terminal" })
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd(menu), { desc = "App launcher (Spotlight-style)" })
-hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(menu), { desc = "App launcher" })
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager), { desc = "File manager" })
-hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("hyprlock"), { desc = "Lock screen" })
+hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("noctalia msg session lock"), { desc = "Lock screen" })
 
--- Windows (SUPER = Cmd: Q quits, W closes, M "minimizes", Tab switches)
-hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { desc = "Close window" })
-hl.bind(mainMod .. " + W", hl.dsp.window.close(), { desc = "Close window (Cmd+W style)" })
+-- Windows. Application-level Cmd shortcuts pass through to xremap; only
+-- macOS-style desktop controls remain global.
 hl.bind(mainMod .. " + Tab", hl.dsp.window.cycle_next(), { desc = "Switch window (Cmd+Tab style)" })
 hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.window.cycle_next("prev"), { desc = "Switch window backwards" })
 hl.bind(mainMod .. " + M", hl.dsp.window.move({ workspace = "special:magic" }),
     { desc = "Minimize to scratchpad (Cmd+M style)" })
 hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exit(), { desc = "Exit Hyprland" })
-hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }), { desc = "Toggle floating" })
-hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen(), { desc = "Fullscreen" })
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { desc = "Pseudotile" })
-hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"), { desc = "Toggle split direction" })
+hl.bind(mainMod .. " + ALT + W", hl.dsp.window.close(), { desc = "Force-close active window" })
+hl.bind(mainMod .. " + CTRL + F", hl.dsp.window.fullscreen(), { desc = "Fullscreen (macOS style)" })
 
--- Clipboard
- hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | walker --dmenu | cliphist decode | wl-copy"),
+-- Clipboard history
+hl.bind(mainMod .. " + ALT + V", hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard"),
     { desc = "Clipboard history" })
 
 -- Screenshots
@@ -243,29 +232,27 @@ hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim - | swappy -f -"), { desc = "Scre
 
 -- Screen OCR: select a region, text lands in the clipboard (tesseract comes
 -- from modules/desktop.nix)
-hl.bind(mainMod .. " + SHIFT + T",
+hl.bind(mainMod .. " + ALT + O",
     hl.dsp.exec_cmd(
         "grim -g \"$(slurp -d)\" - | tesseract stdin stdout 2>/dev/null | wl-copy" ..
         " && notify-send -t 3000 'OCR' \"$(wl-paste | head -c 200)\""),
     { desc = "OCR region to clipboard" })
 
--- Focus (vim keys + arrows)
-hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }), { desc = "Focus left" })
-hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "down" }), { desc = "Focus down" })
-hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "up" }), { desc = "Focus up" })
-hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }), { desc = "Focus right" })
+-- Focus with SUPER+arrows. xremap leaves these keys compositor-owned so
+-- workspace and window navigation keep working in every GUI app.
 hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }), { desc = "Focus left" })
 hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "down" }), { desc = "Focus down" })
 hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }), { desc = "Focus up" })
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }), { desc = "Focus right" })
 
--- Move windows
-hl.bind(mainMod .. " + SHIFT + h", hl.dsp.window.move({ direction = "left" }), { desc = "Move window left" })
-hl.bind(mainMod .. " + SHIFT + j", hl.dsp.window.move({ direction = "down" }), { desc = "Move window down" })
-hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.move({ direction = "up" }), { desc = "Move window up" })
-hl.bind(mainMod .. " + SHIFT + l", hl.dsp.window.move({ direction = "right" }), { desc = "Move window right" })
+-- Move windows (arrows, same reason as above; not shadowed by xremap)
+hl.bind(mainMod .. " + SHIFT + left", hl.dsp.window.move({ direction = "left" }), { desc = "Move window left" })
+hl.bind(mainMod .. " + SHIFT + down", hl.dsp.window.move({ direction = "down" }), { desc = "Move window down" })
+hl.bind(mainMod .. " + SHIFT + up", hl.dsp.window.move({ direction = "up" }), { desc = "Move window up" })
+hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.move({ direction = "right" }), { desc = "Move window right" })
 
--- Workspaces: SUPER+[0-9] switch, SUPER+SHIFT+[0-9] move window
+-- Workspaces: SUPER+[0-9] switches; SUPER+SHIFT+[0-9] moves the window.
+-- Digits stay out of xremap so Cmd workspace switching works in every app.
 for i = 1, 10 do
     local key = i % 10 -- 10 maps to key 0
     hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }),
@@ -274,28 +261,10 @@ for i = 1, 10 do
         { desc = "Move window to workspace " .. i })
 end
 
--- Workspace overview (Hyprspace plugin registers the `overview` dispatcher
--- namespace). Everything pcall-guarded: if the plugin is missing or its Lua
--- calling convention differs, the bind degrades to a notification instead of
--- erroring the config.
-hl.bind(mainMod .. " + grave", function()
-    local p = hl.plugin and hl.plugin.overview
-    if not p or not p.toggle then
-        hl.dispatch(hl.dsp.exec_cmd("notify-send Hyprspace 'overview plugin not loaded'"))
-        return
-    end
-    local ok, d = pcall(p.toggle)
-    if ok and type(d) == "table" then
-        pcall(hl.dispatch, d)          -- toggle() returned a dispatcher
-    elseif not ok then
-        pcall(hl.dispatch, p.toggle)   -- fallback: dispatch the function itself
-    end
-end, { desc = "Workspace overview (Mission Control)" })
-
--- Special workspace (scratchpad)
-hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"), { desc = "Toggle scratchpad" })
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }),
-    { desc = "Move window to scratchpad" })
+-- Special workspace (scratchpad). Cmd+Option avoids app save shortcuts while
+-- keeping one compositor-owned shortcut.
+hl.bind(mainMod .. " + ALT + S", hl.dsp.workspace.toggle_special("magic"),
+    { desc = "Toggle scratchpad" })
 
 -- Mouse
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { desc = "Next workspace" })
@@ -304,33 +273,42 @@ hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true, desc = 
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, desc = "Resize window" })
 
 -- Media
--- Volume OSD is quickshell's (shell.qml IpcHandler) — one less daemon than swayosd
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("qs ipc call osd volumeUp"),
+-- Volume OSD is noctalia's — one less daemon than swayosd
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("noctalia msg volume-up"),
     { locked = true, repeating = true, desc = "Volume up" })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("qs ipc call osd volumeDown"),
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("noctalia msg volume-down"),
     { locked = true, repeating = true, desc = "Volume down" })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("qs ipc call osd muteToggle"),
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("noctalia msg volume-mute"),
     { locked = true, desc = "Mute" })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true, desc = "Play/pause" })
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true, desc = "Next track" })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true, desc = "Previous track" })
 
--- Gaming
-hl.bind(mainMod .. " + G", hl.dsp.exec_cmd("steam"), { desc = "Launch Steam" })
-hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("runelite"), { desc = "Launch RuneLite" })
+-- Game mode: flip the panel between 4K desktop and native 1440p for CS2.
+-- CS2 on Linux has no exclusive fullscreen, so matching the monitor to the
+-- game's render res is the only scaling-free way to fill the screen with a
+-- 1440p image (gamescope breaks mouse input on this NVIDIA setup).
+-- NOTE: config reloads reassert the 4K monitor block above — reload = desktop mode.
+hl.bind(mainMod .. " + CTRL + G", function()
+    local m = hl.get_monitor("HDMI-A-2")
+    if m and m.width > 2560 then
+        hl.monitor({ output = "HDMI-A-2", mode = "2560x1440@59.95", position = "0x0", scale = "1" })
+        hl.dispatch(hl.dsp.exec_cmd("notify-send -t 2000 'Game mode' '1440p native'"))
+    else
+        hl.monitor({ output = "HDMI-A-2", mode = "3840x2160@60", position = "0x0", scale = "1.5" })
+        hl.dispatch(hl.dsp.exec_cmd("notify-send -t 2000 'Desktop mode' '4K'"))
+    end
+end, { desc = "Toggle 1440p game mode / 4K desktop" })
 
--- Theme + wallpaper (the `theme` CLI lives in home/default.nix)
-hl.bind(mainMod .. " + CTRL + T", hl.dsp.exec_cmd("theme-picker"),
-    { desc = "Theme/wallpaper picker" })
-hl.bind(mainMod .. " + CTRL + N", hl.dsp.exec_cmd("theme toggle"),
+-- Theme + wallpaper (the `theme` CLI lives in home/default.nix; wallpaper
+-- rendering + picker panel are noctalia's)
+hl.bind(mainMod .. " + ALT + T", hl.dsp.exec_cmd("noctalia msg panel-toggle wallpaper"),
+    { desc = "Wallpaper picker" })
+hl.bind(mainMod .. " + ALT + N", hl.dsp.exec_cmd("theme toggle"),
     { desc = "Toggle light/dark mode" })
-hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("systemctl --user restart wallpaper"),
-    { desc = "Restart wallpaper service" })
-hl.bind(mainMod .. " + CTRL + W", hl.dsp.exec_cmd("theme wallpaper"),
-    { desc = "Reset wallpaper (current theme)" })
 
--- Power menu (quickshell overlay — shell.qml IpcHandler)
-hl.bind(mainMod .. " + BackSpace", hl.dsp.exec_cmd("qs ipc call power toggle"),
+-- Power menu (noctalia session menu)
+hl.bind(mainMod .. " + BackSpace", hl.dsp.exec_cmd("noctalia msg panel-toggle session"),
     { desc = "Power menu (lock/logout/reboot/shutdown)" })
 
 -- Cheatsheet: this very list
@@ -348,20 +326,24 @@ hl.window_rule({
     float = true,
 })
 
-hl.window_rule({
-    name  = "float-nm-editor",
-    match = { class = "^(nm-connection-editor)$" },
-    float = true,
-})
-
-hl.window_rule({
-    name  = "float-blueman",
-    match = { class = "^(blueman-manager)$" },
-    float = true,
-})
 
 hl.window_rule({
     name  = "float-pip",
     match = { title = "^(Picture-in-Picture)$" },
+    float = true,
+})
+
+-- Keybind cheatsheet terminal (scripts/keybinds.sh)
+hl.window_rule({
+    name  = "float-keybinds",
+    match = { class = "^keybinds\\.cheatsheet$" },
+    float = true,
+})
+
+-- CS2 spawns secondary windows (server browser, etc.); float them all so
+-- they overlay the game instead of tiling next to it and shrinking it
+hl.window_rule({
+    name  = "float-cs2",
+    match = { class = "^(cs2)$" },
     float = true,
 })

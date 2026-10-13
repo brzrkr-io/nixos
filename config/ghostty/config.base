@@ -4,7 +4,9 @@
 # Font
 font-family = "Maple Mono NF"
 font-size = 10
-# font-style = Bold      # was forcing everything bold — part of the "too large" feel
+# Bold as the base weight; bold text steps up to ExtraBold so it still stands out
+font-style = Bold
+font-style-bold = ExtraBold
 font-thicken = false
 adjust-cell-height = 10%
 
@@ -12,12 +14,12 @@ adjust-cell-height = 10%
 window-padding-x = 10
 window-padding-y = 10
 window-padding-balance = true
-background-opacity = 0.88
+background-opacity = 0.78
 window-decoration = false
 window-save-state = always
 
 # Splits: dim whatever isn't focused
-unfocused-split-opacity = 0.55
+unfocused-split-opacity = 0.45
 
 # Behavior
 copy-on-select = clipboard

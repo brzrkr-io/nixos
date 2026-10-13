@@ -1,6 +1,6 @@
-# brzrkr — NixOS config
+# erewhon — NixOS config
 
-Barebones NixOS + Hyprland (native Lua config) + Quickshell bar. Tokyo Night everywhere.
+Barebones NixOS + Hyprland (native Lua config) + Noctalia shell. Gruvbox everywhere.
 
 ## The map — where everything lives
 
@@ -9,26 +9,24 @@ Barebones NixOS + Hyprland (native Lua config) + Quickshell bar. Tokyo Night eve
 ├── flake.nix               # THE entry point: inputs (nixpkgs, home-manager,
 │                           # disko, stylix) + the module list below
 ├── flake.lock              # pinned versions of everything (nix flake update)
-├── KEYBINDS.txt            # keybind cheatsheet (live version: SUPER+SHIFT+/)
 │
-├── hosts/brzrkr/
+├── hosts/erewhon/
 │   ├── default.nix         # MACHINE: boot, networking/firewall, user account,
-│   │                       # SERVICES (ssh, tailscale, docker, printing), nix gc
-│   ├── hardware-configuration.nix   # generated at install — don't edit
-│   └── disko.nix           # disk layout (LUKS + ext4) — install-time only
+│   │                       # SERVICES (ssh, tailscale, docker), nix gc
+│   ├── hardware-configuration.nix   # detected boot-critical hardware modules
+│   └── disko.nix           # disk layout (LUKS + Btrfs) — install-time only
 │
 ├── modules/
 │   ├── desktop.nix         # Hyprland, greetd login, audio, bluetooth, fonts,
 │   │                       # ALL system packages (desktop apps + CLI/dev tools + LSPs)
 │   ├── nvidia.nix          # GPU driver (open kernel module) + Wayland env
 │   ├── gaming.nix          # Steam, RuneLite, Lutris, gamemode, mangohud
-│   └── theme.nix           # stylix: base16 Tokyo Night → GTK/cursor/fonts
+│   ├── mac-keys.nix        # Cmd-style GUI shortcuts; watches keyboard reconnects
+│   └── theme.nix           # stylix: base16 Gruvbox → GTK/cursor/fonts
 │
 ├── home/default.nix        # YOUR USER: user packages, zsh + aliases, git,
-│                           # dotfile symlinks, user services (wallpaper,
-│                           # polkit agent, elephant)
-│
-├── pkgs/                   # custom packages not in nixpkgs (linear)
+│                           # dotfile symlinks, user services (polkit agent,
+│                           # darkman)
 │
 └── config/                 # ← LIVE-EDITABLE dotfiles. Symlinked into ~/.config,
     │                       #   changes apply WITHOUT rebuild (hot-reload/restart app)
@@ -36,12 +34,10 @@ Barebones NixOS + Hyprland (native Lua config) + Quickshell bar. Tokyo Night eve
     │   ├── hyprland.lua    # the compositor config (Lua, Hyprland 0.55+)
     │   ├── hl.meta.lua     # LSP stubs → autocomplete for the hl.* API in nvim
     │   ├── scripts/        # keybinds.sh (cheatsheet)
-    │   └── hypridle/hyprlock.conf
-    ├── quickshell/shell.qml  # bar + notifications + volume OSD (QML, hot-reloads)
-    ├── walker/             # launcher config
+    │   └── hypridle.conf
     ├── nvim/               # kickstart.nvim (edit init.lua, own it)
     ├── ghostty/ starship/ tmux/  # app configs, carried over
-    └── wallpapers/         # incl. tokyonight-nix.png (+ .svg source)
+    └── wallpapers/         # wallpapers used by the theme switcher
 ```
 
 ## The three files you'll actually touch
@@ -49,17 +45,48 @@ Barebones NixOS + Hyprland (native Lua config) + Quickshell bar. Tokyo Night eve
 | I want to… | Edit | Then |
 |---|---|---|
 | add a program | `modules/desktop.nix` (system) or `home/default.nix` (user) | `nrs` |
-| enable a service/daemon | `hosts/brzrkr/default.nix` | `nrs` |
+| enable a service/daemon | `hosts/erewhon/default.nix` | `nrs` |
 | change keybinds/looks | `config/hypr/hyprland.lua` | auto-reloads (or `hyprctl reload`) |
-| tweak the bar | `config/quickshell/shell.qml` | hot-reloads on save |
+| tweak the bar/shell | `config/noctalia/config.toml` or Noctalia settings GUI | live; runtime state is `~/.local/state/noctalia/settings.toml` |
 | configure nvim | `config/nvim/init.lua` | restart nvim |
 
 ## Commands
 
 - `nrs` / `nrt` / `nrb` — rebuild switch / test / boot (aliases)
 - `nix flake update && nrs` — upgrade everything to latest unstable
-- `sudo nix-collect-garbage` — free disk (old generations)
+- `sudo nix-collect-garbage -d` — free disk after removing old generations
+- `nix store optimise` — manually deduplicate the store; weekly automation is enabled
 - Find packages/options: https://search.nixos.org (Options tab for services!)
+
+## Deployment policy
+
+- `cache.nixos.org` and the official `nix-community.cachix.org` binary cache are enabled.
+- Store deduplication runs weekly instead of during every build, keeping deployments responsive.
+- Build outputs stay in `/tmp`; do not leave a `result` symlink in the repo because it pins a full system closure as a garbage-collection root.
+
+## Go workflow
+
+Neovim is the primary Go editor here: it is already configured with the
+official `gopls`, format-on-save, staticcheck-backed diagnostics, Telescope
+navigation, and Nix-provided Delve debugging. VS Code remains a good secondary
+choice when a GUI debugger or extension marketplace matters more than a
+reproducible editor configuration.
+
+Inside a Go module:
+
+```sh
+gofmt -w .
+go test -race ./...
+go vet ./...
+staticcheck ./...
+govulncheck ./...
+```
+
+These follow the Go team's core guidance: standard formatting, tests including
+the race detector, vetting, vulnerability scanning, and reviewable exported
+APIs. References: [gopls](https://go.dev/gopls),
+[Effective Go](https://go.dev/doc/effective_go), and
+[Code Review Comments](https://go.dev/wiki/CodeReviewComments).
 
 ## Rules of the house
 

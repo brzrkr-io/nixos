@@ -1,4 +1,4 @@
-# btop — tokyonight night (derived from the same palette as quickshell.qml)
+# btop — tokyonight night (same palette as the other fragments)
 theme[main_bg]="#16161e"
 theme[main_fg]="#c0caf5"
 theme[title]="#c0caf5"

@@ -1,5 +1,5 @@
 {
-  description = "brzrkr - barebones NixOS + Hyprland (Lua) + Quickshell";
+  description = "erewhon - barebones NixOS + Hyprland (Lua) + Noctalia";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -32,17 +32,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Secrets: encrypted in-repo with sops/age, decrypted to /run/secrets at activation
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
+
+    # Noctalia tracks upstream v5 directly and follows this system's nixpkgs.
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # omp (oh-my-pi) coding agent. Deliberately NOT following our nixpkgs:
+    # their flake pins rust-overlay + nix-bun versions the build is tested
+    # against (nixpkgs only packages omp on master, newer than our pin)
+    oh-my-pi.url = "github:can1357/oh-my-pi";
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
       system = "x86_64-linux";
-      hostname = "brzrkr";
+      hostname = "erewhon";
       username = "pjanderson";
 
       pkgs = import nixpkgs {
@@ -55,16 +61,14 @@
         inherit system;
         specialArgs = { inherit inputs username hostname; };
         modules = [
-          # Custom packages overlay (pkgs.custom.*)
-          { nixpkgs.overlays = [ (final: prev: { custom = import ./pkgs { pkgs = prev; }; }) ]; }
 
           # Disko - declarative partitioning
           inputs.disko.nixosModules.disko
-          ./hosts/brzrkr/disko.nix
-          ./hosts/brzrkr/hardware-configuration.nix
+          ./hosts/erewhon/disko.nix
+          ./hosts/erewhon/hardware-configuration.nix
 
           # Host + system modules
-          ./hosts/brzrkr/default.nix
+          ./hosts/erewhon/default.nix
           ./modules/desktop.nix
           ./modules/nvidia.nix
           ./modules/gaming.nix
@@ -77,9 +81,6 @@
           inputs.xremap-flake.nixosModules.default
           ./modules/mac-keys.nix
 
-          # Secrets (sops/age; see .sops.yaml + modules/secrets.nix)
-          inputs.sops-nix.nixosModules.sops
-          ./modules/secrets.nix
 
           # Home Manager
           home-manager.nixosModules.home-manager
@@ -96,7 +97,7 @@
 
       # Development shell for this flake
       devShells.${system}.default = pkgs.mkShell {
-        packages = with pkgs; [ nil nixpkgs-fmt sops age ssh-to-age ];
+        packages = with pkgs; [ nil nixpkgs-fmt ];
       };
     };
 }

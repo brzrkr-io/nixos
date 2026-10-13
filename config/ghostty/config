@@ -9,9 +9,21 @@ config-file = ?/home/pjanderson/.config/theme/current/ghostty.conf
 cursor-color = cell-foreground
 cursor-text = cell-background
 
-# Mac-style copy/paste (xremap skips terminals by design)
+# Mac-style application shortcuts (xremap skips terminals by design)
+keybind = super+a=select_all
 keybind = super+c=copy_to_clipboard
+keybind = super+f=start_search
+keybind = super+n=new_window
+keybind = super+q=quit
+keybind = super+t=new_tab
 keybind = super+v=paste_from_clipboard
+keybind = super+w=close_surface
 keybind = super+equal=increase_font_size:1
 keybind = super+minus=decrease_font_size:1
 keybind = super+zero=reset_font_size
+
+# Shift+Space: send a plain space. Claude Code 2.1.x mis-decodes the kitty
+# keyboard protocol's CSI 32;2u and types the literal word "space"
+# (anthropics/claude-code#17003) — intercept before encoding, like a mac would
+keybind = shift+space=text:\x20
+theme = noctalia

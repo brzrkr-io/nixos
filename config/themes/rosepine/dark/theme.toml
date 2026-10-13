@@ -1,0 +1,5 @@
+name = "rosepine"
+polarity = "dark"
+wallpaper = "nixos-blue.png"
+gtk = "prefer-dark"
+noctalia = "Rose Pine"

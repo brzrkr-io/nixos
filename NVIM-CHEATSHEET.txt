@@ -1,4 +1,4 @@
-NVIM CHEATSHEET — brzrkr kickstart config          (space = leader key)
+NVIM CHEATSHEET — erewhon kickstart config          (space = leader key)
 ═══════════════════════════════════════════════════════════════════════
 
 THE ONE TRICK THAT TEACHES YOU EVERYTHING

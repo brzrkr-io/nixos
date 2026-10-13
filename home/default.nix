@@ -17,19 +17,13 @@ let
       gnugrep
       gnused
       procps
-      awww
+      noctalia-shell # Noctalia v5 CLI (`noctalia msg`) for wallpaper + theme IPC
       glib # gsettings + gdbus (ghostty reload)
       libnotify
       neovim
       tmux
     ];
     text = ''exec bash "${dotfiles}/themes/theme.sh" "$@"'';
-  };
-
-  themePicker = pkgs.writeShellApplication {
-    name = "theme-picker";
-    runtimeInputs = [ themeCli ];
-    text = ''exec bash "${dotfiles}/themes/theme-picker.sh" "$@"'';
   };
 
   # Night light: darkman hooks run outside the compositor's env, so recover the
@@ -41,7 +35,16 @@ let
       HYPRLAND_INSTANCE_SIGNATURE="$(ls "$runtime/hypr" | head -n1)"
       export HYPRLAND_INSTANCE_SIGNATURE
     fi
-    ${pkgs.hyprland}/bin/hyprctl hyprsunset ${cmd} || true
+    # darkman and Hyprland start together; wait for hyprsunset's socket instead
+    # of emitting a transient startup error when darkman wins the race.
+    attempt=0
+    while [ "$attempt" -lt 25 ]; do
+      if ${pkgs.hyprland}/bin/hyprctl hyprsunset ${cmd} >/dev/null 2>&1; then
+        exit 0
+      fi
+      attempt=$((attempt + 1))
+      sleep 0.2
+    done
   '';
 in
 {
@@ -80,17 +83,13 @@ in
       shfmt
       nixpkgs-fmt
       prettier
-      fastfetch
-      # Launcher (walker UI; elephant backend runs as a user service below)
-      walker
 
       # Gaming tools
       prismlauncher
       protonup-qt
     ] ++ [
-      # Theme switching (SUPER+CTRL+T picker; see config/themes/)
+      # Theme switching (see config/themes/; wallpaper picker is noctalia's)
       themeCli
-      themePicker
     ];
 
     # ==========================================================================
@@ -111,27 +110,17 @@ in
     # ==========================================================================
     file = {
       ".config/hypr".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/hypr";
-      ".config/quickshell".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/quickshell";
-      ".config/walker".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/walker";
       ".config/ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/ghostty";
       ".config/nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
       ".config/helix".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/helix";
       ".config/zed".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/zed";
 
-      # Hyprland plugins at a stable path so hyprland.lua can load them without
-      # hardcoding store hashes (NOT under .config/hypr — that's a repo symlink
-      # home-manager can't write into)
-      ".local/share/hypr-plugins/dynamic-cursors.so".source =
-        "${pkgs.hyprlandPlugins.hypr-dynamic-cursors}/lib/libhypr-dynamic-cursors.so";
-      # Workspace overview, Mission Control style (SUPER+` — bind in hyprland.lua)
-      ".local/share/hypr-plugins/hyprspace.so".source =
-        "${pkgs.hyprlandPlugins.hyprspace}/lib/libhyprspace.so";
+      ".config/noctalia/config.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/noctalia/config.toml";
       ".config/starship.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/starship/starship.toml";
       ".tmux.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux/tmux.conf";
 
-      # Tmux plugins at a stable path (same trick as hypr-plugins above): nix
-      # delivers them, config/tmux/tmux.conf run-shells them — no TPM, no
-      # store hashes in the hot-editable config
+      # Nix delivers tmux plugins at stable paths; config/tmux/tmux.conf
+      # loads them directly, with no TPM or store hashes in the live config.
       ".local/share/tmux-plugins/sensible".source =
         "${pkgs.tmuxPlugins.sensible}/share/tmux-plugins/sensible";
       ".local/share/tmux-plugins/resurrect".source =
@@ -171,6 +160,38 @@ in
     cursor-size = lib.mkDefault config.home.pointerCursor.size;
   };
 
+  # Reproducible launch behavior from Noctalia, Thunar, and downloaded files.
+  # Force replaces the small pre-Nix mimeapps.list; all of its handlers are
+  # preserved below.
+  xdg = {
+    configFile."mimeapps.list".force = true;
+    mimeApps = {
+      enable = true;
+      associations.added = {
+        "text/csv" = [ "dev.zed.Zed.desktop" ];
+        "text/markdown" = [ "dev.zed.Zed.desktop" ];
+        "text/plain" = [ "dev.zed.Zed.desktop" ];
+      };
+      defaultApplications = {
+        "application/pdf" = [ "firefox.desktop" ];
+        "image/jpeg" = [ "imv-dir.desktop" ];
+        "image/png" = [ "imv-dir.desktop" ];
+        "image/webp" = [ "imv-dir.desktop" ];
+        "inode/directory" = [ "thunar.desktop" ];
+        "text/csv" = [ "dev.zed.Zed.desktop" ];
+        "text/html" = [ "firefox.desktop" ];
+        "text/markdown" = [ "dev.zed.Zed.desktop" ];
+        "text/plain" = [ "dev.zed.Zed.desktop" ];
+        "video/mp4" = [ "mpv.desktop" ];
+        "video/webm" = [ "mpv.desktop" ];
+        "x-scheme-handler/claude-cli" = [ "claude-code-url-handler.desktop" ];
+        "x-scheme-handler/discord-409416265891971072" = [ "discord-409416265891971072.desktop" ];
+        "x-scheme-handler/http" = [ "firefox.desktop" ];
+        "x-scheme-handler/https" = [ "firefox.desktop" ];
+      };
+    };
+  };
+
   # ============================================================================
   # USER SERVICES
   # ============================================================================
@@ -185,36 +206,6 @@ in
       After = [ "graphical-session-pre.target" ];
     };
   };
-
-  # Wallpaper (awww daemon + image; awww is swww's successor in nixpkgs)
-  systemd.user.services.wallpaper = {
-    Unit = {
-      Description = "Wallpaper service";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-
-    Service = {
-      # Daemon in the foreground so systemd tracks it; image set once it responds
-      ExecStart = "${pkgs.awww}/bin/awww-daemon";
-      ExecStartPost = "${pkgs.writeShellScript "set-wallpaper" ''
-        for _ in $(seq 1 50); do
-          ${pkgs.awww}/bin/awww query >/dev/null 2>&1 && break
-          sleep 0.2
-        done
-        ${themeCli}/bin/theme wallpaper
-      ''}";
-      Restart = "on-failure";
-      RestartSec = "5s";
-    };
-
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
-  };
-
-  # Walker's data backend (apps, calc, files providers)
-  services.elephant.enable = true;
 
   # Sunrise/sunset dark-mode daemon — drives `theme mode system` and the
   # hyprsunset night light. Static coordinates (no geoclue); TODO: set these
@@ -238,11 +229,12 @@ in
   home.activation.themeInit = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     themeState="$HOME/.local/state/theme"
     mkdir -p "$themeState" "$HOME/.config/theme"
-    [ -f "$themeState/theme" ] || echo tokyonight > "$themeState/theme"
+    [ -f "$themeState/theme" ] || echo gruvbox > "$themeState/theme"
     [ -f "$themeState/mode" ] || echo dark > "$themeState/mode"
     [ -f "$themeState/polarity" ] || echo dark > "$themeState/polarity"
-    [ -e "$HOME/.config/theme/current" ] || ln -sfnT "${dotfiles}/themes/tokyonight/dark" "$HOME/.config/theme/current"
+    [ -e "$HOME/.config/theme/current" ] || ln -sfnT "${dotfiles}/themes/gruvbox/dark" "$HOME/.config/theme/current"
   '';
+
 
   # Polkit authentication agent (GTK)
   systemd.user.services.polkit-gnome-agent = {
@@ -349,7 +341,7 @@ in
 
       # NixOS (nh wraps nixos-rebuild: nom build output + nvd generation diff;
       # flake path comes from programs.nh.flake. Fallback if nh ever breaks:
-      # sudo nixos-rebuild switch --flake ~/nixos#brzrkr)
+      # sudo nixos-rebuild switch --flake ~/nixos#erewhon)
       nrs = "nh os switch";
       nrb = "nh os boot";
       nrt = "nh os test";
@@ -360,6 +352,7 @@ in
       "...." = "cd ../../..";
 
       # Misc
+      ff = "fastfetch";
       reload = "source ~/.zshrc";
       myip = "curl -s https://ipinfo.io/ip";
     };
@@ -391,6 +384,8 @@ in
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
+    # Atuin owns Ctrl-R; fzf remains available for explicit fuzzy searches.
+    historyWidget.command = "";
     defaultCommand = "fd --type f --hidden --follow --exclude .git";
     defaultOptions = [
       "--height 60%"

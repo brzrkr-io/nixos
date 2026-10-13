@@ -1,0 +1,76 @@
+# Noctalia v5 — Gruvbox desktop shell
+# GUI changes are stored in ~/.local/state/noctalia/settings.toml and override this base.
+
+[theme]
+mode = "dark"
+shell_mode = "follow"
+source = "builtin"
+builtin = "Gruvbox"
+
+[bar]
+order = ["default"]
+
+# Flush, solid, square — matches Hyprland's rounding = 0 and opaque windows.
+# No per-widget capsules: one surface, widgets separated by spacing alone.
+[bar.default]
+position = "top"
+enabled = true
+auto_hide = false
+smart_auto_hide = false
+show_on_workspace_switch = true
+reserve_space = true
+layer = "top"
+thickness = 34
+background_opacity = 1.0
+compositor_blur = false
+border_width = 0.0
+shadow = false
+radius = 0
+margin_ends = 0
+margin_edge = 0
+padding = 16
+widget_spacing = 14
+hover_highlight = true
+show_tooltip = true
+capsule = false
+font_weight = 550
+start = ["launcher", "workspaces"]
+center = ["clock"]
+end = ["media", "tray", "notifications", "network", "volume", "control-center", "session"]
+
+[widget.launcher]
+glyph = "layout-grid"
+
+[widget.workspaces]
+style = "regular"
+show_labels = true
+labels_only_when_occupied = true
+hide_when_empty = true
+focused_color = "primary"
+occupied_color = "surface_variant"
+empty_color = "surface_variant"
+urgent_color = "error"
+
+[widget.clock]
+format = "{:%a %b %-d   %H:%M}"
+tooltip_format = "{:%A, %B %-d, %Y}"
+
+[widget.network]
+# Wired: the interface name ("eno1") is noise; the glyph says enough.
+show_label = false
+
+[widget.media]
+# Only while something is actually playing; video thumbnails are mush at 16px.
+hide_when_idle = true
+hide_when_no_media = true
+hide_album_art = true
+max_length = 260
+
+[widget.control-center]
+# Use a conventional settings glyph instead of Noctalia's owl mark.
+glyph = "settings-2"
+
+[wallpaper]
+directory = "/home/pjanderson/Downloads"
+enabled = true
+transition_duration = 1500

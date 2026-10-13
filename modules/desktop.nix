@@ -1,9 +1,9 @@
-# Desktop: Hyprland + greetd/tuigreet, audio, bluetooth, fonts, packages
+# Desktop: Hyprland + Noctalia Greeter, audio, bluetooth, fonts, packages
 { config, pkgs, lib, inputs, username, hostname, ... }:
 
 {
   # ==========================================================================
-  # HYPRLAND (nixpkgs 0.55.x, native Lua config)
+  # HYPRLAND (native Lua config)
   # ==========================================================================
   programs.hyprland = {
     enable = true;
@@ -11,23 +11,87 @@
   };
 
   # ==========================================================================
-  # LOGIN (greetd + tuigreet)
+  # LOGIN (Noctalia Greeter)
   # ==========================================================================
-  # Never restart the login manager on nixos-rebuild switch — that kills the
-  # live Hyprland session mid-use (learned the hard way)
-  systemd.services.greetd.restartIfChanged = false;
+  # Noctalia Greeter owns the greetd login surface; the shell's in-session
+  # lockscreen remains wired through `noctalia msg session lock`.
+  # Never restart greetd on nixos-rebuild switch — that kills the live session.
+  systemd.services.greetd = {
+    restartIfChanged = false;
+    # The NixOS module creates greeter.toml as a store symlink. Noctalia
+    # migrates runtime preferences into that file, so materialize a writable
+    # copy immediately before the greeter starts.
+    preStart = lib.mkAfter ''
+      cfg=/var/lib/noctalia-greeter/greeter.toml
+      wallpaper=/home/pjanderson/Downloads/wallhaven-k81oj1_3840x2160.png
+      wallpaper_target=/var/lib/noctalia-greeter/wallpaper.png
+      if [ -L "$cfg" ]; then
+        tmp="$cfg.tmp"
+        cp --dereference "$cfg" "$tmp"
+        chown greeter:greeter "$tmp"
+        chmod 0644 "$tmp"
+        mv -f "$tmp" "$cfg"
+      fi
+      if [ -r "$wallpaper" ]; then
+        cp --reflink=auto "$wallpaper" "$wallpaper_target"
+        chown greeter:greeter "$wallpaper_target"
+        chmod 0644 "$wallpaper_target"
+      fi
+    '';
+  };
 
-  services.greetd = {
+  services.displayManager.noctalia-greeter = {
     enable = true;
-    # Fixed command instead of a session picker: the picker exposed a broken
-    # "Hyprland (UWSM)" entry (ships with the hyprland package, needs uwsm we
-    # don't install) and tuigreet's session memory kept re-selecting it.
-    # No autologin: Parker wants the password prompt.
-    # start-hyprland (not bare Hyprland): the 0.55+ launcher that prepares the
-    # session env — bare launch triggers the "started without start-hyprland"
-    # warning notification on every login
-    settings.default_session.command =
-      "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd start-hyprland";
+    settings = {
+      session.default = "Hyprland";
+      cursor = {
+        theme = "Bibata-Modern-Ice";
+        size = 24;
+      };
+      keyboard.layout = "us";
+      appearance = {
+        scheme = "Synced";
+        theme_mode = "dark";
+        hide_logo = true;
+        power_buttons_position = "bottom-right";
+        scheme_selector_position = "top-right";
+        font_family = "Maple Mono NF";
+        corner_radius_scale = 1.1;
+        wallpaper = {
+          path = "/var/lib/noctalia-greeter/wallpaper.png";
+          fill_mode = "crop";
+          fill_color = "#191724";
+        };
+        palette = {
+          primary = "#c4a7e7";
+          on_primary = "#191724";
+          secondary = "#9ccfd8";
+          on_secondary = "#191724";
+          tertiary = "#ebbcba";
+          on_tertiary = "#191724";
+          error = "#eb6f92";
+          on_error = "#191724";
+          surface = "#191724";
+          on_surface = "#e0def4";
+          surface_variant = "#1f1d2e";
+          on_surface_variant = "#908caa";
+          outline = "#403d52";
+          shadow = "#191724";
+          hover = "#ebbcba";
+          on_hover = "#191724";
+        };
+      };
+      clock = {
+        enabled = true;
+        position = "top-center";
+        time_format = "{:%H:%M}";
+        date_format = "%A · %B %-d";
+      };
+    };
+    cursorTheme = {
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Ice";
+    };
   };
 
   # ==========================================================================
@@ -51,7 +115,35 @@
     pulse.enable = true;
     jack.enable = true;
     wireplumber.enable = true;
+
+    # Desktop audio best practice: keep outputs open. WirePlumber suspends an
+    # idle sink after 5s; on HDMI every reopen makes the Dell re-lock the
+    # audio stream, which is 1–2s of silence (observed: the HDMI sink kept
+    # cycling suspended→running during YouTube). Headroom gives the NVIDIA
+    # HDMI device a safety margin — it logged underruns on every start.
+    wireplumber.extraConfig."51-alsa-no-suspend" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [ { "node.name" = "~alsa_output.*"; } ];
+          actions.update-props = {
+            "session.suspend-timeout-seconds" = 0;
+            "api.alsa.headroom" = 1024;
+          };
+        }
+      ];
+    };
   };
+
+  # Power saving below PipeWire, off for both audio paths (no battery here):
+  # - snd_hda_intel: the HDA codec powers off after 10s idle and the HDMI link
+  #   has to renegotiate on wake — same 1–2s silence as a suspended sink.
+  # - btusb: the adapter is a CSR8510-clone dongle (0a12:0001, BT 4.0); with
+  #   USB autosuspend on it logged bursts of "hci0: link tx timeout" while
+  #   streaming to AirPods — each burst is an audible dropout.
+  boot.extraModprobeConfig = ''
+    options snd_hda_intel power_save=0
+    options btusb enable_autosuspend=0
+  '';
 
   # ==========================================================================
   # BLUETOOTH
@@ -59,16 +151,55 @@
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
+    # Experimental exposes Device1.PreferredBearer. AirPods are dual-mode and
+    # get bonded over both BR/EDR and LE; reconnecting over LE yields
+    # "Connected" with no A2DP audio. Pin them with:
+    #   busctl --system set-property org.bluez /org/bluez/hci0/dev_<MAC> \
+    #     org.bluez.Device1 PreferredBearer s bredr
+    # (persisted by bluetoothd). ControllerMode stays "dual": the NuPhy
+    # keyboard is LE-only.
+    settings.General.Experimental = true;
   };
-  services.blueman.enable = true;
 
   # ==========================================================================
   # SECURITY (polkit; the user agent runs via home-manager)
   # ==========================================================================
   security.polkit.enable = true;
 
+  # Secret Service (org.freedesktop.secrets): Electron/Chromium apps store
+  # OAuth/SSO tokens here — without it, desktop-app sign-ins (Okta et al)
+  # succeed in the browser but the app loops back to the login screen.
+  services.gnome.gnome-keyring.enable = true;
+  security.pam.services.greetd.enableGnomeKeyring = true;
+  # PAM starts and unlocks the keyring once. Hide the package's XDG
+  # autostarts, which otherwise launch a second secrets daemon after login.
+  environment.etc."xdg/autostart/gnome-keyring-pkcs11.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Hidden=true
+  '';
+  environment.etc."xdg/autostart/gnome-keyring-secrets.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Hidden=true
+  '';
+
   # Required for dconf-based settings (GTK theme, cursor via GSettings) to apply
   programs.dconf.enable = true;
+
+  # Restore browser windows and tabs after login/reboot. This is an unlocked
+  # enterprise policy: Firefox still exposes its normal startup controls.
+  programs.firefox = {
+    enable = true;
+    policies.Homepage = {
+      StartPage = "previous-session";
+      NewTabOnRestore = false;
+    };
+  };
+
+  # Module rather than a bare package: it wires the Hyprland portal and
+  # PipeWire into Zoom's FHS sandbox, which screen sharing needs on Wayland.
+  programs.zoom-us.enable = true;
 
   # USB automount + trash/MTP/network shares in Thunar (thunar-volman needs these)
   services.udisks2.enable = true;
@@ -82,7 +213,6 @@
     packages = with pkgs; [
       maple-mono.NF
       nerd-fonts.jetbrains-mono # fallback
-      font-awesome
     ];
     fontconfig.defaultFonts = {
       monospace = [ "Maple Mono NF" "JetBrainsMono Nerd Font" ];
@@ -107,26 +237,24 @@
   # DESKTOP PACKAGES
   # ==========================================================================
   environment.systemPackages = with pkgs; [
-    # Shell / launcher / notifications (quickshell IS the notification daemon
-    # and volume OSD — shell.qml; libnotify stays for notify-send)
-    quickshell
+    # Noctalia owns the bar, notifications, OSD, launcher, clipboard,
+    # wallpaper, and lock screen. Its upstream package includes its shell
+    # runtime, so no separate shell packages are needed.
+    inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     libnotify
 
-    # Wallpaper, lock, idle, night light
-    awww
-    hyprlock
+    # Idle + night light (wallpaper/lock are noctalia's now)
     hypridle
     hyprsunset
 
-    # Screenshots (+ tesseract for the SUPER+SHIFT+T screen-OCR bind)
+    # Screenshots (+ tesseract for the Cmd+Option+O screen-OCR bind)
     grim
     slurp
     swappy
     tesseract
 
-    # Clipboard
+    # Clipboard and screen OCR
     wl-clipboard
-    cliphist
 
     # Polkit agent binary (service defined in home-manager)
     polkit_gnome
@@ -144,26 +272,22 @@
     brightnessctl
     pavucontrol
     playerctl
-    networkmanagerapplet
 
     # Theming
     adwaita-icon-theme
 
     # Apps
-    firefox
     obsidian
-    custom.linear
     ghostty
     zed-editor
+    slack
 
     # ========================================================================
     # CLI / DEVELOPMENT PACKAGES
     # ========================================================================
     # Core utilities
-    vim
     wget
     curl
-    git
     git-lfs
     unzip
     zip
@@ -178,8 +302,6 @@
     bat # cat
     ripgrep # grep
     fd # find
-    fzf # fuzzy finder
-    zoxide # cd
     jq # JSON
     yq # YAML
     ncdu # disk usage
@@ -187,10 +309,10 @@
     tealdeer # tldr — community cheatsheets for CLI tools
 
     # Languages & build tools
-    go
+    go_1_27 # latest stable Go release in the current nixpkgs lock
     rustup
     python3
-    nodejs_22
+    nodejs # latest Node.js package in the current nixpkgs lock
     gcc
     tree-sitter # nvim-treesitter grammar builds
     gnumake
@@ -205,13 +327,14 @@
     terraform
     ansible
     awscli2
-    azure-cli
-    google-cloud-sdk
 
     # Code quality & LSPs
     shellcheck
     nil
     gopls
+    go-tools # staticcheck and related Go analysis tools
+    govulncheck # official Go dependency vulnerability scanner
+    delve # Go debugger, used by nvim-dap-go
     pyright
     terraform-ls
     yaml-language-server
@@ -235,7 +358,9 @@
     fastfetch
 
     # AI coding
+    codex # official OpenAI Codex CLI
     claude-code
+    inputs.oh-my-pi.packages.${pkgs.stdenv.hostPlatform.system}.omp
 
     # Archives
     p7zip

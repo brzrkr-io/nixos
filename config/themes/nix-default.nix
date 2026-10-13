@@ -6,5 +6,5 @@
 {
   theme = "gruvbox";
   polarity = "dark";
-  base16 = "gruvbox-dark-hard"; # basename in ${pkgs.base16-schemes}/share/themes/
+  base16 = "gruvbox-dark-hard"; # base16 scheme basename
 }

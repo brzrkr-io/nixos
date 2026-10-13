@@ -1,26 +1,44 @@
 # Spotify via spicetify: the client is patched at build time, so the theme is
-# part of the derivation — changing it means a rebuild, unlike the symlinked
-# runtime configs. Tokyo Night to match nvim/ghostty/quickshell.
+# part of the derivation — changing it means a rebuild. Rose Pine is supplied
+# as a native custom color scheme because spicetify-nix has no Rose Pine theme.
 { pkgs, inputs, ... }:
 
 let
   spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.system};
-  # Follows the build-time default (runtime `theme` switches everything else;
-  # Spotify converges on the next rebuild)
   themeDefault = import ../config/themes/nix-default.nix;
 
-  # theme/polarity -> spicetify theme + color scheme. Scheme names must match
-  # the [sections] in each theme's color.ini (verified against the pinned rev).
+  rosepineColors = {
+    text = "e0def4";
+    subtext = "908caa";
+    main = "191724";
+    sidebar = "1f1d2e";
+    player = "1f1d2e";
+    card = "26233a";
+    shadow = "191724";
+    "selected-row" = "403d52";
+    button = "eb6f92";
+    "button-active" = "ebbcba";
+    "button-disabled" = "6e6a86";
+    "tab-active" = "403d52";
+    notification = "c4a7e7";
+    "notification-error" = "eb6f92";
+    misc = "6e6a86";
+  };
+
+  # Existing schemes remain available when switching the build-time default.
   spice = {
     tokyonight = {
       theme = spicePkgs.themes.tokyoNight;
       colorScheme = { dark = "Night"; light = "Light"; }.${themeDefault.polarity};
     };
     gruvbox = {
-      # no dedicated gruvbox spicetify theme; the "text" theme ships a Gruvbox
-      # scheme (dark only — light polarity gets it too, least-bad option)
       theme = spicePkgs.themes.text;
       colorScheme = "Gruvbox";
+    };
+    rosepine = {
+      theme = spicePkgs.themes.default;
+      colorScheme = "custom";
+      customColorScheme = rosepineColors;
     };
   }.${themeDefault.theme};
 in
@@ -30,5 +48,6 @@ in
   programs.spicetify = {
     enable = true;
     inherit (spice) theme colorScheme;
+    customColorScheme = spice.customColorScheme or { };
   };
 }

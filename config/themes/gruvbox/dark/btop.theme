@@ -1,4 +1,4 @@
-# btop — gruvbox dark hard (derived from the same palette as quickshell.qml)
+# btop — gruvbox dark hard (same palette as the other fragments)
 theme[main_bg]="#1d2021"
 theme[main_fg]="#ebdbb2"
 theme[title]="#ebdbb2"
