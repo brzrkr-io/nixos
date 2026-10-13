@@ -341,7 +341,13 @@
     terraform-ls
     yaml-language-server
     lua-language-server
-    typescript-language-server
+    # nixos-unstable 7fd4004 predates upstream's corrected pnpm dependency hash.
+    # Remove after https://github.com/NixOS/nixpkgs/commit/ac7b1aaed03db4b794502641cdeed685ed777889 reaches the channel.
+    (typescript-language-server.overrideAttrs (oldAttrs: {
+      pnpmDeps = oldAttrs.pnpmDeps.overrideAttrs (_: {
+        outputHash = "sha256-xR/EF60lVBsITKgH7wCM2wHM46PFQevD51KfCENSUH4=";
+      });
+    }))
     bash-language-server
 
     # Networking
