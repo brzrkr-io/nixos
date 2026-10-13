@@ -226,12 +226,20 @@ hl.bind(mainMod .. " + CTRL + F", hl.dsp.window.fullscreen(), { desc = "Fullscre
 hl.bind(mainMod .. " + ALT + V", hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard"),
     { desc = "Clipboard history" })
 
--- Screenshots
-hl.bind("Print", hl.dsp.exec_cmd("grim -g \"$(slurp -d)\" - | swappy -f -"), { desc = "Screenshot region" })
+-- Ghostty cannot paste binary image clipboard data with Cmd+V. Save each
+-- capture and copy OMP's @/path image-reference syntax as ordinary text.
+local screenshotSetup =
+    "dir=\"$XDG_RUNTIME_DIR/omp-screenshots\"; mkdir -p \"$dir\"; " ..
+    "file=\"$dir/$(date +%s%N).png\"; "
+local screenshotRegion = screenshotSetup ..
+    "region=\"$(slurp -d)\" && grim -g \"$region\" \"$file\" && printf '@%s' \"$file\" | wl-copy"
+local screenshotFull = screenshotSetup ..
+    "grim \"$file\" && printf '@%s' \"$file\" | wl-copy"
+hl.bind("Print", hl.dsp.exec_cmd(screenshotRegion), { desc = "Screenshot region for OMP paste" })
 -- In Mac mode, the Air75 V3's dedicated screenshot key emits Cmd+Shift+4.
-hl.bind(mainMod .. " + SHIFT + 4", hl.dsp.exec_cmd("grim -g \"$(slurp -d)\" - | swappy -f -"),
-    { desc = "Screenshot region (NuPhy key)" })
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim - | swappy -f -"), { desc = "Screenshot full screen" })
+hl.bind(mainMod .. " + SHIFT + 4", hl.dsp.exec_cmd(screenshotRegion),
+    { desc = "Screenshot region for OMP paste (NuPhy key)" })
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd(screenshotFull), { desc = "Screenshot full screen for OMP paste" })
 
 -- Screen OCR: select a region, text lands in the clipboard (tesseract comes
 -- from modules/desktop.nix)
