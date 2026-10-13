@@ -280,6 +280,8 @@
     obsidian
     ghostty
     zed-editor
+    jetbrains.goland
+    vscode
     slack
 
     # ========================================================================
