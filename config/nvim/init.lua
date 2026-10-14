@@ -98,8 +98,8 @@ do
   vim.g.mapleader = ' '
   vim.g.maplocalleader = ' '
 
-  -- Set to true if you have a Nerd Font installed and selected in the terminal
-  vim.g.have_nerd_font = false
+  -- The terminal uses IosevkaTerm Nerd Font Mono, including patched icon glyphs.
+  vim.g.have_nerd_font = true
 
   -- [[ Setting options ]]
   --  See `:help vim.o`

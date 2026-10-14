@@ -28,8 +28,8 @@ in
 
     fonts = {
       monospace = {
-        package = pkgs.maple-mono.NF;
-        name = "Maple Mono NF";
+        package = pkgs.nerd-fonts.iosevka-term;
+        name = "IosevkaTerm Nerd Font Mono";
       };
       sansSerif = config.stylix.fonts.monospace;
       serif = config.stylix.fonts.monospace;

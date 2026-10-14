@@ -2,7 +2,7 @@
 # Theme colors come from the fragment included after this file (see config)
 
 # Font
-font-family = "Maple Mono NF"
+font-family = "IosevkaTerm Nerd Font Mono"
 font-size = 10
 # Bold as the base weight; bold text steps up to ExtraBold so it still stands out
 font-style = Bold

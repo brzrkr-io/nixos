@@ -7,6 +7,9 @@ shell_mode = "follow"
 source = "builtin"
 builtin = "Gruvbox"
 
+[shell]
+font_family = "IosevkaTerm Nerd Font Mono"
+
 [bar]
 order = ["default"]
 

@@ -1,6 +1,6 @@
 # erewhon — NixOS config
 
-Barebones NixOS + Hyprland (native Lua config) + Noctalia shell. Gruvbox everywhere.
+Barebones NixOS + Hyprland (native Lua config) + Noctalia shell. Gruvbox and IosevkaTerm Nerd Font Mono everywhere.
 
 ## The map — where everything lives
 

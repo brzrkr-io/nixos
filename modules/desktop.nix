@@ -55,7 +55,7 @@
         hide_logo = true;
         power_buttons_position = "bottom-right";
         scheme_selector_position = "top-right";
-        font_family = "Maple Mono NF";
+        font_family = "IosevkaTerm Nerd Font Mono";
         corner_radius_scale = 1.1;
         wallpaper = {
           path = "/var/lib/noctalia-greeter/wallpaper.png";
@@ -211,13 +211,13 @@
   fonts = {
     enableDefaultPackages = true;
     packages = with pkgs; [
-      maple-mono.NF
+      nerd-fonts.iosevka-term
       nerd-fonts.jetbrains-mono # fallback
     ];
     fontconfig.defaultFonts = {
-      monospace = [ "Maple Mono NF" "JetBrainsMono Nerd Font" ];
-      sansSerif = [ "Maple Mono NF" "JetBrainsMono Nerd Font" ];
-      serif = [ "Maple Mono NF" "JetBrainsMono Nerd Font" ];
+      monospace = [ "IosevkaTerm Nerd Font Mono" "JetBrainsMono Nerd Font" ];
+      sansSerif = [ "IosevkaTerm Nerd Font Mono" "JetBrainsMono Nerd Font" ];
+      serif = [ "IosevkaTerm Nerd Font Mono" "JetBrainsMono Nerd Font" ];
     };
   };
 
