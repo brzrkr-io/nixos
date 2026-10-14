@@ -3,6 +3,8 @@
 # `?` makes it optional so ghostty still starts if the symlink is missing.
 config-file = config.base
 config-file = ?/home/pjanderson/.config/theme/current/ghostty.conf
+# Optional runtime override; the Hyprland opacity toggle owns this file.
+config-file = ?/home/pjanderson/.local/state/ghostty/opacity.conf
 
 # Cursor tracks the cell it sits on (after the theme include so it beats the
 # theme's hardcoded cursor-color, whatever theme is active)

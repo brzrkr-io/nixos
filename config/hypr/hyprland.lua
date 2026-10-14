@@ -211,6 +211,9 @@ hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal), { desc = "Open termin
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd(menu), { desc = "App launcher (Spotlight-style)" })
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager), { desc = "File manager" })
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("noctalia msg session lock"), { desc = "Lock screen" })
+hl.bind(mainMod .. " + SHIFT + B",
+    hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-ghostty-opacity.sh"),
+    { desc = "Toggle terminal solid/transparent background" })
 
 -- Windows. Application-level Cmd shortcuts pass through to xremap; only
 -- macOS-style desktop controls remain global.
