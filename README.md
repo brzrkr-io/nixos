@@ -67,6 +67,17 @@ in `config/nvim/init.lua` and pinned by `config/nvim/nvim-pack-lock.json`.
 - Store deduplication runs weekly instead of during every build, keeping deployments responsive.
 - Build outputs stay in `/tmp`; do not leave a `result` symlink in the repo because it pins a full system closure as a garbage-collection root.
 
+## Logitech MX Master 4
+
+Solaar runs as a user service and tray app for receiver, battery, DPI, button,
+and haptic settings. The mouse uses the directly connected Bolt receiver, not
+Bluetooth. Check firmware offered to Linux with `fwupdmgr refresh --force` then
+`fwupdmgr get-updates`; firmware absent from LVFS requires Logitech Options+ on
+Windows or macOS.
+
+The MX Master 4 report rate is fixed at 125 Hz, and the Dell S2722QC runs 4K at
+60 Hz. Drivers cannot increase either hardware limit.
+
 ## Go workflow
 
 Neovim is the primary Go editor here: it is already configured with the

@@ -161,6 +161,13 @@
     settings.General.Experimental = true;
   };
 
+  # Logitech HID++ support: udev permissions plus the Solaar tray/service for
+  # receiver, DPI, button, battery, and haptic settings.
+  programs.solaar = {
+    enable = true;
+    userService.enable = true;
+  };
+
   # ==========================================================================
   # SECURITY (polkit; the user agent runs via home-manager)
   # ==========================================================================
