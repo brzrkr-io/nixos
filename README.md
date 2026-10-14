@@ -56,7 +56,8 @@ in `config/nvim/init.lua` and pinned by `config/nvim/nvim-pack-lock.json`.
 ## Commands
 
 - `nrs` / `nrt` / `nrb` — rebuild switch / test / boot (aliases)
-- `nix flake update && nrs` — upgrade everything to latest unstable
+- `nix flake update && nrb`, then reboot — upgrade the full unstable system
+  without replacing PAM/graphics components underneath the running session
 - `sudo nix-collect-garbage -d` — free disk after removing old generations
 - `nix store optimise` — manually deduplicate the store; weekly automation is enabled
 - Find packages/options: https://search.nixos.org (Options tab for services!)
@@ -66,6 +67,13 @@ in `config/nvim/init.lua` and pinned by `config/nvim/nvim-pack-lock.json`.
 - `cache.nixos.org` and the official `nix-community.cachix.org` binary cache are enabled.
 - Store deduplication runs weekly instead of during every build, keeping deployments responsive.
 - Build outputs stay in `/tmp`; do not leave a `result` symlink in the repo because it pins a full system closure as a garbage-collection root.
+- OpenSSH is key-only and reachable through `tailscale0`, not the physical
+  interface. Add a public key before depending on remote shell access.
+
+Use `nrs` for ordinary configuration changes. Use `nrb` plus a reboot after a
+flake-wide upgrade, especially when glibc, PAM, greetd, Hyprland, or NVIDIA
+changes. Staging those upgrades for boot avoids mixing old desktop processes
+with a newly activated runtime.
 
 ## Logitech MX Master 4
 
@@ -77,6 +85,14 @@ Windows or macOS.
 
 The MX Master 4 report rate is fixed at 125 Hz, and the Dell S2722QC runs 4K at
 60 Hz. Drivers cannot increase either hardware limit.
+
+Hyprland's `cursor.no_hardware_cursors` must remain `2` (auto). In the Lua
+configuration, `false` maps to `0` and forces the NVIDIA hardware cursor path;
+at 4K with 1.5× scaling that path develops progressive pointer lag.
+
+MangoHud is intentionally opt-in. Set a game's Steam launch option to
+`MANGOHUD=1 %command%`; never export `MANGOHUD=1` for the whole desktop because
+that injects the overlay into unrelated Vulkan applications.
 
 ## Go workflow
 
