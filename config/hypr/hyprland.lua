@@ -101,10 +101,6 @@ hl.config({
 
     cursor = {
         inactive_timeout    = 30,
-        -- Auto mode only disables hardware cursors while tearing; force the
-        -- software path because NVIDIA's cursor plane develops progressive
-        -- lag at fractional 4K scaling.
-        no_hardware_cursors = 1,
     },
 
     decoration = {

@@ -84,19 +84,19 @@ the one-time GTK and font initialization before the first terminal is opened.
 
 ## Logitech MX Master 4
 
-Solaar runs as a user service and tray app for receiver, battery, DPI, button,
-and haptic settings. The mouse uses the directly connected Bolt receiver, not
-Bluetooth. Check firmware offered to Linux with `fwupdmgr refresh --force` then
-`fwupdmgr get-updates`; firmware absent from LVFS requires Logitech Options+ on
-Windows or macOS.
+Solaar runs as a user service for battery, DPI, button, wheel, and haptic
+settings. The mouse uses Bluetooth on Easy-Switch channel 2. Keep it off the
+Bolt receiver: a controlled trace measured Bolt raw-input stalls up to 112 ms,
+with matching compositor stalls, while Bluetooth delivered the same continuous
+movement with no gaps above 35 ms.
+
+The installed mouse firmware reports 27.2.17 and the Bolt receiver reports
+5.4.26. Logitech's current releases are 27.3.19 and 5.5.30, but LVFS does not
+offer them; update both with Logi Options+ on Windows or macOS before trying the
+Bolt path again.
 
 The MX Master 4 report rate is fixed at 125 Hz, and the Dell S2722QC runs 4K at
 60 Hz. Drivers cannot increase either hardware limit.
-
-Hyprland's `cursor.no_hardware_cursors` must remain `1` to force software
-cursor rendering. Auto mode (`2`) only disables hardware cursors while tearing,
-so it leaves NVIDIA's cursor plane active during normal use; at 4K with 1.5×
-scaling that path develops progressive pointer lag.
 
 MangoHud is intentionally opt-in. Set a game's Steam launch option to
 `MANGOHUD=1 %command%`; never export `MANGOHUD=1` for the whole desktop because
