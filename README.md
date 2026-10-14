@@ -50,6 +50,9 @@ Barebones NixOS + Hyprland (native Lua config) + Noctalia shell. Gruvbox and Ios
 | tweak the bar/shell | `config/noctalia/config.toml` or Noctalia settings GUI | live; runtime state is `~/.local/state/noctalia/settings.toml` |
 | configure nvim | `config/nvim/init.lua` | restart nvim |
 
+Noctalia generates `config/nvim/lua/matugen.lua`; its Base16 renderer is declared
+in `config/nvim/init.lua` and pinned by `config/nvim/nvim-pack-lock.json`.
+
 ## Commands
 
 - `nrs` / `nrt` / `nrb` — rebuild switch / test / boot (aliases)
