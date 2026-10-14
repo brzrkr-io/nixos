@@ -30,7 +30,7 @@
                 type = "luks";
                 name = "cryptroot";
                 settings = {
-                  allowDiscards = true;  # SSD TRIM support
+                  allowDiscards = true; # SSD TRIM support
                 };
                 # Password will be prompted during install
                 content = {
