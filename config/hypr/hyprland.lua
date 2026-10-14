@@ -23,7 +23,7 @@ hl.monitor({
 ---- MY PROGRAMS ----
 ---------------------
 
-local terminal    = "ghostty"
+local terminal    = "ghostty +new-window"
 local fileManager = "thunar"
 local menu        = "noctalia msg panel-toggle launcher"
 

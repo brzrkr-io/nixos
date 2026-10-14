@@ -75,6 +75,13 @@ flake-wide upgrade, especially when glibc, PAM, greetd, Hyprland, or NVIDIA
 changes. Staging those upgrades for boot avoids mixing old desktop processes
 with a newly activated runtime.
 
+## Ghostty startup
+
+The Hyprland terminal binding uses Ghostty's direct D-Bus action instead of
+starting the full GTK application for every window. `hyprland-session.target`
+also starts Ghostty's packaged user service in the background at login, hiding
+the one-time GTK and font initialization before the first terminal is opened.
+
 ## Logitech MX Master 4
 
 Solaar runs as a user service and tray app for receiver, battery, DPI, button,

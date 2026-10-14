@@ -202,7 +202,10 @@ in
     Unit = {
       Description = "Hyprland session";
       BindsTo = [ "graphical-session.target" ];
-      Wants = [ "graphical-session-pre.target" ];
+      Wants = [
+        "graphical-session-pre.target"
+        "app-com.mitchellh.ghostty.service"
+      ];
       After = [ "graphical-session-pre.target" ];
     };
   };
