@@ -93,9 +93,10 @@ Windows or macOS.
 The MX Master 4 report rate is fixed at 125 Hz, and the Dell S2722QC runs 4K at
 60 Hz. Drivers cannot increase either hardware limit.
 
-Hyprland's `cursor.no_hardware_cursors` must remain `2` (auto). In the Lua
-configuration, `false` maps to `0` and forces the NVIDIA hardware cursor path;
-at 4K with 1.5× scaling that path develops progressive pointer lag.
+Hyprland's `cursor.no_hardware_cursors` must remain `1` to force software
+cursor rendering. Auto mode (`2`) only disables hardware cursors while tearing,
+so it leaves NVIDIA's cursor plane active during normal use; at 4K with 1.5×
+scaling that path develops progressive pointer lag.
 
 MangoHud is intentionally opt-in. Set a game's Steam launch option to
 `MANGOHUD=1 %command%`; never export `MANGOHUD=1` for the whole desktop because
