@@ -80,9 +80,10 @@
     wireguard.enable = true;
     firewall = {
       enable = true;
-      allowedTCPPorts = [ 22 ]; # SSH
-      allowedUDPPorts = [ 51820 53 41641 ]; # WireGuard, DNS, tailscale direct conns
-      trustedInterfaces = [ "tailscale0" ]; # trust traffic arriving over the tailnet
+      # SSH is tailnet-only: tailscale0 is trusted below, while the physical
+      # interface exposes no SSH, DNS, or unused WireGuard port.
+      allowedUDPPorts = [ 41641 ]; # Tailscale direct connections
+      trustedInterfaces = [ "tailscale0" ];
     };
   };
 
@@ -173,8 +174,12 @@
   services = {
     openssh = {
       enable = true;
+      openFirewall = false; # tailscale0 is already trusted above
       settings = {
         PasswordAuthentication = false;
+        # PasswordAuthentication does not disable PAM challenge/response.
+        # Keep this false so SSH is genuinely key-only.
+        KbdInteractiveAuthentication = false;
         PermitRootLogin = "no";
       };
     };
