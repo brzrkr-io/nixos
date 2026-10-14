@@ -101,10 +101,9 @@ hl.config({
 
     cursor = {
         inactive_timeout    = 30,
-        -- Hardware cursors work on NVIDIA 555+ (we're on 595): the old
-        -- no_hardware_cursors workaround forced a full composite on every
-        -- mouse move, making scrolling/pointer motion feel laggy at 4K
-        no_hardware_cursors = false,
+        -- Auto mode lets Aquamarine fall back when NVIDIA cannot sustain a
+        -- hardware cursor plane at fractional 4K scaling.
+        no_hardware_cursors = 2,
     },
 
     decoration = {
