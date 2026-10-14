@@ -115,35 +115,7 @@
     pulse.enable = true;
     jack.enable = true;
     wireplumber.enable = true;
-
-    # Desktop audio best practice: keep outputs open. WirePlumber suspends an
-    # idle sink after 5s; on HDMI every reopen makes the Dell re-lock the
-    # audio stream, which is 1–2s of silence (observed: the HDMI sink kept
-    # cycling suspended→running during YouTube). Headroom gives the NVIDIA
-    # HDMI device a safety margin — it logged underruns on every start.
-    wireplumber.extraConfig."51-alsa-no-suspend" = {
-      "monitor.alsa.rules" = [
-        {
-          matches = [ { "node.name" = "~alsa_output.*"; } ];
-          actions.update-props = {
-            "session.suspend-timeout-seconds" = 0;
-            "api.alsa.headroom" = 1024;
-          };
-        }
-      ];
-    };
   };
-
-  # Power saving below PipeWire, off for both audio paths (no battery here):
-  # - snd_hda_intel: the HDA codec powers off after 10s idle and the HDMI link
-  #   has to renegotiate on wake — same 1–2s silence as a suspended sink.
-  # - btusb: the adapter is a CSR8510-clone dongle (0a12:0001, BT 4.0); with
-  #   USB autosuspend on it logged bursts of "hci0: link tx timeout" while
-  #   streaming to AirPods — each burst is an audible dropout.
-  boot.extraModprobeConfig = ''
-    options snd_hda_intel power_save=0
-    options btusb enable_autosuspend=0
-  '';
 
   # ==========================================================================
   # BLUETOOTH

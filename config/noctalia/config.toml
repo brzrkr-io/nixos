@@ -10,6 +10,9 @@ builtin = "Tokyo-Night"
 [shell]
 font_family = "IosevkaTerm Nerd Font Mono"
 
+[audio]
+enable_overdrive = true
+
 [bar]
 order = ["default"]
 
