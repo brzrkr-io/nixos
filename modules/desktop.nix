@@ -81,12 +81,6 @@
           on_hover = "#191724";
         };
       };
-      clock = {
-        enabled = true;
-        position = "top-center";
-        time_format = "{:%H:%M}";
-        date_format = "%A · %B %-d";
-      };
     };
     cursorTheme = {
       package = pkgs.bibata-cursors;
