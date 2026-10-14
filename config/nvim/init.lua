@@ -380,16 +380,20 @@ do
   -- The active scheme lives in the system theme (~/.config/theme/current/nvim.lua,
   -- flipped by the `theme` CLI — which also live-reloads running instances over
   -- the nvim server socket).
-  -- Keep the generated Noctalia base16 theme dependency beside the selectable schemes.
-  -- rose-pine stays installed so `theme set rosepine` still works in nvim.
-  vim.pack.add { gh 'RRethy/base16-nvim', gh 'ellisonleao/gruvbox.nvim', gh 'rose-pine/neovim' }
+  -- Keep every runtime-switchable palette and generated-theme dependency installed.
+  vim.pack.add {
+    gh 'RRethy/base16-nvim',
+    gh 'ellisonleao/gruvbox.nvim',
+    gh 'rose-pine/neovim',
+    gh 'folke/tokyonight.nvim',
+  }
   if not pcall(dofile, vim.fn.expand '~/.config/theme/current/nvim.lua') then
-    require('gruvbox').setup {
-      contrast = 'hard',
-      transparent_mode = true,
-      italic = { strings = false, comments = false },
+    require('tokyonight').setup {
+      style = 'night',
+      transparent = true,
+      styles = { comments = { italic = false }, sidebars = 'transparent', floats = 'transparent' },
     }
-    vim.cmd.colorscheme 'gruvbox'
+    vim.cmd.colorscheme 'tokyonight-night'
   end
 
   -- Highlight todo, notes, etc in comments

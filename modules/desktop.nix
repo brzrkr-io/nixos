@@ -282,6 +282,7 @@
 
     # Theming
     adwaita-icon-theme
+    glib # gsettings used by the runtime theme switcher
 
     # Apps
     obsidian

@@ -1,11 +1,11 @@
-# Noctalia v5 — Gruvbox desktop shell
+# Noctalia v5 — Tokyo Night desktop shell
 # GUI changes are stored in ~/.local/state/noctalia/settings.toml and override this base.
 
 [theme]
 mode = "dark"
 shell_mode = "follow"
 source = "builtin"
-builtin = "Gruvbox"
+builtin = "Tokyo-Night"
 
 [shell]
 font_family = "IosevkaTerm Nerd Font Mono"

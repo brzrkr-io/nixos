@@ -4,7 +4,7 @@
 # this; edit here and rebuild when you want GTK/Spotify to converge.
 # NOTE: keep flat `key = "value"` lines — theme.sh greps this file.
 {
-  theme = "gruvbox";
+  theme = "tokyonight";
   polarity = "dark";
-  base16 = "gruvbox-dark-hard"; # base16 scheme basename
+  base16 = "tokyo-night-dark"; # base16 scheme basename
 }
