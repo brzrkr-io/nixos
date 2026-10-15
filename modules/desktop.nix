@@ -280,6 +280,7 @@
     fd # find
     jq # JSON
     yq # YAML
+    nmap
     ncdu # disk usage
     duf # df
     tealdeer # tldr — community cheatsheets for CLI tools
