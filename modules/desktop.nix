@@ -301,6 +301,7 @@
     kubernetes-helm
     k9s
     terraform
+    vault
     ansible
     awscli2
 
