@@ -156,6 +156,9 @@
     autoPrune.enable = true;
     # Don't start dockerd at boot; the socket starts it on first `docker` use
     enableOnBoot = false;
+    # kind waits for its node container's boot log via `docker logs`, which
+    # reads nothing back with NixOS's default journald driver.
+    logDriver = "json-file";
   };
 
   # ===========================================================================
