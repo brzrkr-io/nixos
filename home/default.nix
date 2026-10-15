@@ -411,12 +411,11 @@ in
     enableZshIntegration = true;
   };
 
-  # Ctrl+R only (up-arrow keeps plain zsh history — less muscle-memory churn).
-  # Local database only; `atuin import auto` once to pull in existing history.
+  # Atuin owns Ctrl-R and Up-arrow for searchable command history.
+  # Import existing shell history once with `atuin import auto`.
   programs.atuin = {
     enable = true;
     enableZshIntegration = true;
-    flags = [ "--disable-up-arrow" ];
     settings = {
       auto_sync = false;
       update_check = false;
