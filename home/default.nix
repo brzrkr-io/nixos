@@ -285,6 +285,14 @@ in
     };
   };
 
+  # GitHub CLI. Also makes git use it for github.com logins, so push/pull to
+  # private repos (groundwork) just works over HTTPS after `gh auth login`.
+  programs.gh = {
+    enable = true;
+    gitCredentialHelper.enable = true;
+    settings.git_protocol = "https";
+  };
+
   # Delta (git pager)
   programs.delta = {
     enable = true;
